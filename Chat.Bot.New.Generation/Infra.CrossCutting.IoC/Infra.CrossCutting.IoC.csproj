@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="7.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Infra.CrossCutting.Log\Infra.CrossCutting.Log.csproj" />
+    <ProjectReference Include="..\Infra.CrossCutting.RabbitMQ\Infra.CrossCutting.RabbitMQ.csproj" />
   </ItemGroup>
 
 </Project>

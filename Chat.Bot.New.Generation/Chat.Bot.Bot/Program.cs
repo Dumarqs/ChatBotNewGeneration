@@ -1,3 +1,5 @@
+using Infra.CrossCutting.IoC;
+
 namespace Chat.Bot.Bot
 {
     public class Program
@@ -8,6 +10,8 @@ namespace Chat.Bot.Bot
                 .ConfigureServices(services =>
                 {
                     services.AddHostedService<Worker>();
+
+                    services.ServicesLog();
                 })
                 .Build();
 

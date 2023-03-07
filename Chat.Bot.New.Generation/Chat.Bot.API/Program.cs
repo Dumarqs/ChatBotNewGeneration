@@ -1,9 +1,14 @@
 using Chat.Bot.API.Hubs;
+using Domain.Core.CnnStrings;
 using Infra.CrossCutting.IoC;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+
 namespace Chat.Bot.API
 {
     public class Program
     {
+        const string CorsName = "chatBotAPI";
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +21,21 @@ namespace Chat.Bot.API
             builder.Services.AddSwaggerGen();
             builder.Services.AddHealthChecks();
             builder.Services.AddSignalR();
+
+            builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            builder.Configuration.AddEnvironmentVariables();
+
+            ConnectionStrings cnnStrings = builder.Configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
+            builder.Services.AddSingleton(cnnStrings);
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: CorsName,
+                                  builder => builder.SetIsOriginAllowed(origin => true)
+                                                    .AllowAnyMethod()
+                                                    .AllowAnyHeader()
+                                                    .AllowCredentials());
+            });
 
             var app = builder.Build();
 
@@ -39,6 +59,8 @@ namespace Chat.Bot.API
             app.MapControllers();
 
             app.MapHub<ChatBotHub>("/chat");
+
+            app.UseCors(CorsName);
 
             app.Run();
         }

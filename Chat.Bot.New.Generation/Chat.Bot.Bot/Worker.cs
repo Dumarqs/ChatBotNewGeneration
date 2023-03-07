@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chat.Bot.Bot
 {
-    public class Worker : IChatBotHub, IHostedService
+    public class Worker : IHostedService
     {
         private readonly ILoggerAdapter<Worker> _logger;
         private HubConnection _connection;
@@ -17,10 +17,10 @@ namespace Chat.Bot.Bot
                 .WithUrl("https://localhost:7203/chat")
                 .Build();
 
-            _connection.On<string>("SendMessage", SendMessage);
+            _connection.On<string, string>("Message", SendMessage);
         }
 
-        public Task SendMessage(string message)
+        public Task SendMessage(string user, string message)
         {
             _logger.LogInformation(message);
 
