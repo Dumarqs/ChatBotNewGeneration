@@ -1,5 +1,4 @@
-﻿using Domain.Core.Hub;
-using Infra.CrossCutting.Log.Interfaces;
+﻿using Infra.CrossCutting.Log.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Chat.Bot.API.Hubs

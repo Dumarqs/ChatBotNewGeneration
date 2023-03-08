@@ -1,7 +1,7 @@
+using Application.Automapper;
 using Chat.Bot.API.Hubs;
 using Domain.Core.CnnStrings;
 using Infra.CrossCutting.IoC;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace Chat.Bot.API
 {
@@ -13,8 +13,13 @@ namespace Chat.Bot.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            ConnectionStrings cnnStrings = builder.Configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
+            builder.Services.ServicesSqlServer(cnnStrings);
+
             // Add services to the container.
             builder.Services.ServicesLog();
+            builder.Services.ServicesApplication();
+            builder.Services.ServicesRepository();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -24,9 +29,7 @@ namespace Chat.Bot.API
 
             builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             builder.Configuration.AddEnvironmentVariables();
-
-            ConnectionStrings cnnStrings = builder.Configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
-            builder.Services.AddSingleton(cnnStrings);
+            
 
             builder.Services.AddCors(options =>
             {
@@ -36,6 +39,8 @@ namespace Chat.Bot.API
                                                     .AllowAnyHeader()
                                                     .AllowCredentials());
             });
+
+            builder.Services.AddAutoMapper(typeof(DomainToDtoMappingProfile));
 
             var app = builder.Build();
 

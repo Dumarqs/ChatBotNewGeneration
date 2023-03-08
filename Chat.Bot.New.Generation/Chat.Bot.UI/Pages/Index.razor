@@ -7,6 +7,12 @@
 
 <div class="form-group">
     <label>
+        Chat Group:
+        <input @bind="chatInput" />
+    </label>
+</div>
+<div class="form-group">
+    <label>
         User:
         <input @bind="userInput" />
     </label>
@@ -33,12 +39,12 @@
     private List<string> messages = new List<string>();
     private string? userInput;
     private string? messageInput;
+    private string? chatInput;
 
     protected override async Task OnInitializedAsync()
     {
         hubConnection = new HubConnectionBuilder()
             .WithUrl("https://localhost:7203/chat")
-
             .Build();
 
         hubConnection.On<string, string>("Message", (user, message) =>
