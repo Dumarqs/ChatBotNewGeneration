@@ -16,10 +16,10 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<RoomDto> GetAllRoom()
+        public async Task<IEnumerable<RoomDto>> GetAllRoom()
         {
             var room = await _roomRepository.GetAll();
-            return _mapper.Map<RoomDto>(room);
+            return _mapper.Map<IEnumerable<RoomDto>>(room);
         }
     }
 }

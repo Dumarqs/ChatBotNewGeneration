@@ -8,7 +8,7 @@ namespace Application.Automapper
     {
         public DomainToDtoMappingProfile()
         {
-            CreateMap<Room, RoomDto>().ReverseMap();
+            CreateMap<Room, RoomDto>();
         }
     }
 }

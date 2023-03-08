@@ -4,6 +4,6 @@ namespace Application.Services.Interfaces
 {
     public interface IRoomService
     {
-        Task<RoomDto> GetAllRoom();
+        Task<IEnumerable<RoomDto>> GetAllRoom();
     }
 }

@@ -15,19 +15,11 @@ namespace Infra.Data.SqlServer.Repositories
             DbSet = Db.Set<TEntity>();
         }
 
-        public void Dispose()
-        {
-            Db.Dispose();
-        }
+        public void Dispose() => Db.Dispose();
 
-        public virtual Task<List<TEntity>> GetAll()
-        {
-            return DbSet.ToListAsync();
-        }
 
-        public Task<int> SaveChanges()
-        {
-            return Db.SaveChangesAsync();
-        }
+        public async virtual Task<IEnumerable<TEntity>> GetAll() => await DbSet.AsNoTracking().ToListAsync();
+
+        public async Task<int> SaveChanges() => await Db.SaveChangesAsync();
     }
 }

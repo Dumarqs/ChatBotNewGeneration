@@ -19,7 +19,7 @@ namespace Chat.Bot.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllRoom()
         {
-            return Response(_roomService.GetAllRoom());
+            return Response(await _roomService.GetAllRoom());
         }
     }
 }

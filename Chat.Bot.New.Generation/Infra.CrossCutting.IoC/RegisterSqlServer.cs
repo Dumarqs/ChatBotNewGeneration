@@ -19,7 +19,7 @@ namespace Infra.CrossCutting.IoC
         {
             services.AddDbContext<ChatBotContext>(options => 
                 options.UseSqlServer(connectionStrings.CnnDB)
-            );;
+            );
         }
     }
 }

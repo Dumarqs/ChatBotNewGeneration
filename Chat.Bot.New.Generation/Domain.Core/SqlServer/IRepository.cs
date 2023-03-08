@@ -2,7 +2,7 @@
 {
     public interface IRepository<TEntity> : IDisposable 
     {
-        Task<List<TEntity>> GetAll();
+        Task<IEnumerable<TEntity>> GetAll();
         Task<int> SaveChanges();
     }
 
