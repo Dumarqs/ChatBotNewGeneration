@@ -1,5 +1,9 @@
 ﻿using Application.Services.Interfaces;
+using AutoMapper;
 using Chat.Bot.API.Controllers.Base;
+using Chat.Bot.API.ViewModels;
+using Domain.Core.SqlServer;
+using Domain.Dtos;
 using Infra.CrossCutting.Log.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,17 +13,34 @@ namespace Chat.Bot.API.Controllers
     {
         private readonly ILoggerAdapter<RoomController> _logger;
         private readonly IRoomService _roomService;
-        public RoomController(ILoggerAdapter<RoomController> logger, 
-                              IRoomService roomService)
+        private readonly IMapper _mapper;
+        public RoomController(ILoggerAdapter<RoomController> logger,
+                              IRoomService roomService, IMapper mapper)
         {
             _logger = logger;
             _roomService = roomService;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllRoom()
         {
-            return Response(await _roomService.GetAllRoom());
+            return Response(_mapper.Map<IEnumerable<RoomViewModel>>(await _roomService.GetAllRoom()));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRoomFiltered([FromQuery] Filter filter)
+        {
+            return Response(_mapper.Map<IEnumerable<RoomViewModel>>(await _roomService.GetRoomFiltered(filter)));
+        }
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateRoom([FromBody] RoomViewModel roomViewModel)
+        {
+            var roomDto = _mapper.Map<RoomDto>(roomViewModel);
+            await _roomService.AddRoom(roomDto);
+            return Ok();
         }
     }
 }

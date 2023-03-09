@@ -1,0 +1,63 @@
+﻿@page "/addRoom"
+@using Chat.Bot.UI.Model
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Text
+@inject Microsoft.AspNetCore.Components.NavigationManager navigationManager
+@inject Chat.Bot.UI.Services.ChatBotService chatbotService;
+@inject IHttpClientFactory ClientFactory
+<h3>
+    Add Room
+</h3>
+
+<form>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tbody>
+            <tr>
+                <td>
+                    <label for="RName" class="control-label">
+                        Room Name
+                    </label>
+                </td>
+                <td>
+                    <input for="RName" class="form-control"
+                           @bind="@room.RoomName" />
+                </td>
+            </tr>           
+            <tr>
+                <td></td>
+                <td>
+                    <br />
+                    <button type="button" class="btn btn-primary"
+                            @onclick="() => CreateRoom()">
+                        &#8195;Save&#8195;
+                    </button>&#8194;
+                    <button type="button" class="btn btn-warning"
+                            @onclick="() => Cancel()">
+                        &#8194;&#8201;Cancel&#8201;&#8194;
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+
+@code {
+    Room room = new Room();
+
+    protected async Task CreateRoom()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, chatbotService.GetBaseUrl() + "Room/CreateRoom");
+
+        var requestJson = JsonSerializer.Serialize(room);
+        var data = new StringContent(requestJson, Encoding.UTF8, "application/json");
+        request.Content = data;
+
+        var client = ClientFactory.CreateClient();
+
+        var response = await client.SendAsync(request);
+        if (response.IsSuccessStatusCode)            
+            Cancel();
+    }
+    void Cancel() => navigationManager.NavigateTo("/listRoom");
+}

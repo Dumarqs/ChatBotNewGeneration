@@ -1,0 +1,249 @@
+﻿@page "/listUser"
+@using Chat.Bot.UI.Model
+@using System.Text.Json
+@using System.Web
+@using System.Text.Json.Serialization
+@inject Chat.Bot.UI.Services.ChatBotService chatbotService;
+@inject IHttpClientFactory ClientFactory
+
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<style>
+    .sort-th {
+        cursor: pointer;
+    }
+
+    .fa {
+        float: right;
+    }
+
+    .btn-custom {
+        color: black;
+        float: left;
+        padding: 8px 16px;
+        text-decoration: none;
+        transition: background-color .3s;
+        border: 2px solid #000;
+        margin: 0px 5px 0px 5px;
+    }
+</style>
+
+<a class="btn btn-primary" href='/AddUser'>Add new User</a>
+
+@if (users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row col-md-3 pull-right">
+        <input type="text" id="txtSearch"
+           placeholder="Search Names..." class="form-control"
+           @bind="SearchTerm" @bind:event="oninput" />
+    </div>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+
+                <th class="sort-th">
+                    User Id
+                    <span class="fa @(SetSortIcon("User Id"))"></span>
+                </th>
+                <th class="sort-th">
+                    Name
+                    <span class="fa @(SetSortIcon("Name"))"></span>
+                </th>
+                <th class="sort-th">
+                    Email
+                    <span class="fa @(SetSortIcon("Email"))"></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (users == null || users.Count() == 0)
+            {
+                <tr>
+                    <td colspan="3">
+                        No Records to display
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var user in users)
+                {
+                    <tr>
+                        <td>
+                            <hr style="padding:0px; margin:0px;">
+                            @user.UserId
+                        </td>
+                        <td>
+                            <hr style="padding:0px; margin:0px;">
+                            @user.Name
+                        </td>
+                        <td>
+                            <hr style="padding:0px; margin:0px;">
+                            @user.Email
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+    <div class="pagination">
+        <button class="btn btn-custom" @onclick=@(async ()=>
+            await NavigateToPage("previous"))>
+            ◀
+        </button>
+        @for (int i = startPage; i <= endPage; i++)
+        {
+            var currentPage = i;
+            <button class="btn btn-custom pagebutton
+                 @(currentPage==curPage?"btn-info":"")"
+            @onclick=@(async () =>
+            await refreshRecords(currentPage))>
+                @currentPage
+            </button>
+        }
+        <button class="btn btn-custom" @onclick=@(async ()=>
+            await NavigateToPage("next"))>
+            ▶
+        </button>
+    </div>
+}
+@code {
+    private string searchTerm;
+    private string SearchTerm
+    {
+        get { return searchTerm; }
+        set { searchTerm = value; FilterRecords(); }
+    }
+    private IEnumerable<User> users = Array.Empty<User>();
+    #region Pagination
+    int totalPages;
+    int totalRecords;
+    int curPage = 1;
+    int pagerSize = 10;
+    int pageSize = 10;
+    int startPage;
+    int endPage;
+    string sortColumnName = "Id";
+    string sortDir = "ASC";
+    #endregion
+    protected override async Task OnInitializedAsync()
+    {
+        //display total page buttons
+        await LoadList((curPage - 1) * pageSize, 5, searchTerm);
+
+
+        totalRecords = users.Count();
+        totalPages = (int)Math.Ceiling
+                     (totalRecords / (decimal)pageSize);
+        //SetPagerSize("forward");
+    }
+
+    private async Task LoadList(int skip, int take, string search)
+    {
+        var builder = new UriBuilder(chatbotService.GetBaseUrl() + "User/GetUserFiltered");
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["skip"] = skip.ToString();
+        query["take"] = take.ToString();
+
+        builder.Query = query.ToString();
+
+        var request = new HttpRequestMessage(HttpMethod.Get, builder.ToString());
+
+        var client = ClientFactory.CreateClient();
+
+        var response = await client.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+            users = await JsonSerializer.DeserializeAsync<IEnumerable<User>>(responseStream);
+        }
+    }
+
+    private bool isSortedAscending;
+    private string activeSortColumn;
+
+    private string SetSortIcon(string columnName)
+    {
+        if (activeSortColumn != columnName)
+        {
+            return string.Empty;
+        }
+        if (isSortedAscending)
+        {
+            return "fa-sort-up";
+        }
+        else
+        {
+            return "fa-sort-down";
+        }
+    }
+    public async Task refreshRecords(int currentPage)
+    {
+        //authors = await authorService.ListAll((currentPage - 1)
+        //   * pageSize, pageSize, sortColumnName, sortDir, searchTerm);
+        //curPage = currentPage;
+        this.StateHasChanged();
+    }
+
+    public void SetPagerSize(string direction)
+    {
+        if (direction == "forward" && endPage < totalPages)
+        {
+            startPage = endPage + 1;
+            if (endPage + pagerSize < totalPages)
+            {
+                endPage = startPage + pagerSize - 1;
+            }
+            else
+            {
+                endPage = totalPages;
+            }
+            this.StateHasChanged();
+        }
+        else if (direction == "back" && startPage > 1)
+        {
+            endPage = startPage - 1;
+            startPage = startPage - pagerSize;
+        }
+        else
+        {
+            startPage = 1;
+            endPage = totalPages;
+        }
+    }
+    public async Task NavigateToPage(string direction)
+    {
+        if (direction == "next")
+        {
+            if (curPage < totalPages)
+            {
+                if (curPage == endPage)
+                {
+                    SetPagerSize("forward");
+                }
+                curPage += 1;
+            }
+        }
+        else if (direction == "previous")
+        {
+            if (curPage > 1)
+            {
+                if (curPage == startPage)
+                {
+                    SetPagerSize("back");
+                }
+                curPage -= 1;
+            }
+        }
+        await refreshRecords(curPage);
+    }
+    public void FilterRecords()
+    {
+        endPage = 0;
+        this.OnInitializedAsync().Wait();
+    }
+}

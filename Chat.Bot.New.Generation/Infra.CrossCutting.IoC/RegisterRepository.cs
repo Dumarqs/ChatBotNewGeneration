@@ -9,6 +9,8 @@ namespace Infra.CrossCutting.IoC
         public static void ServicesRepository(this IServiceCollection services)
         {
             services.AddScoped<IRoomRepository, RoomRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
         }
     }
 }

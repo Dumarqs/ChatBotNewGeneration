@@ -9,6 +9,7 @@ namespace Infra.CrossCutting.IoC
         public static void ServicesApplication(this IServiceCollection services)
         {
             services.AddScoped<IRoomService, RoomService>();
+            services.AddScoped<IUserService, UserService>();
         }
     }
 }

@@ -3,17 +3,13 @@
 namespace Chat.Bot.API.Controllers.Base
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     [Produces("application/json")]
     public abstract class BaseController : ControllerBase
     {
         protected new IActionResult Response(object result = null)
         {
-            return Ok(new
-            {
-                success = true,
-                data = result
-            });
+            return Ok(result);
         }
 
     }

@@ -1,4 +1,4 @@
-using Chat.Bot.UI;
+using Chat.Bot.UI.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
@@ -13,6 +13,11 @@ namespace Chat.Bot.UI
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+            builder.Services.AddHttpClient<ChatBotService>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:7203");
+            });
 
             await builder.Build().RunAsync();
         }

@@ -1,6 +1,6 @@
-﻿namespace Domain.Chats
+﻿namespace Domain.Dtos
 {
-    public class User
+    public class UserDto
     {
         public Guid UserId { get; set; }
         public string Name { get; set; }

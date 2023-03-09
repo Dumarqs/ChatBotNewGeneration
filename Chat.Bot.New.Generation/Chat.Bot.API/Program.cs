@@ -1,4 +1,5 @@
 using Application.Automapper;
+using Chat.Bot.API.Automapper;
 using Chat.Bot.API.Hubs;
 using Domain.Core.CnnStrings;
 using Infra.CrossCutting.IoC;
@@ -12,6 +13,8 @@ namespace Chat.Bot.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddControllers(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
 
             ConnectionStrings cnnStrings = builder.Configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
             builder.Services.ServicesSqlServer(cnnStrings);
@@ -41,6 +44,9 @@ namespace Chat.Bot.API
             });
 
             builder.Services.AddAutoMapper(typeof(DomainToDtoMappingProfile));
+            builder.Services.AddAutoMapper(typeof(DtoToDomainMappingProfile));
+            builder.Services.AddAutoMapper(typeof(ViewModelToDtoMappingProfile));
+            builder.Services.AddAutoMapper(typeof(DtoToViewModelMappingProfile));
 
             var app = builder.Build();
 

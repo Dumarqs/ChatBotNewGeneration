@@ -9,6 +9,8 @@ namespace Application.Automapper
         public DomainToDtoMappingProfile()
         {
             CreateMap<Room, RoomDto>();
+            CreateMap<User, UserDto>();
+
         }
     }
 }
