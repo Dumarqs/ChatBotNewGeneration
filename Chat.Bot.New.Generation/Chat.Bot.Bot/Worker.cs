@@ -5,6 +5,7 @@ using Infra.CrossCutting.Log.Interfaces;
 using Infra.CrossCutting.RabbitMQ;
 using Infra.CrossCutting.RabbitMQ.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
+using System.Threading.Channels;
 
 namespace Chat.Bot.Bot
 {
@@ -32,6 +33,8 @@ namespace Chat.Bot.Bot
                 .Build();
 
             _connection.On<Message>("Message", MessageReceive);
+
+            CreateQueue();
         }
 
         public Task MessageReceive(Message message)
@@ -72,6 +75,28 @@ namespace Chat.Bot.Bot
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             await _connection.DisposeAsync();
+        }
+
+        private void CreateQueue()
+        {
+            var channel = _rabbitMQ.GetChannel();
+
+            channel.ExchangeDeclare(
+                    exchange: _options.ExchangeName,
+                    type: "fanout",
+                    durable: false,
+                    autoDelete: false,
+                    arguments: null
+                );
+
+            channel.QueueDeclare(
+                     queue: _options.QueueName,
+                     durable: true,
+                     exclusive: false,
+                     autoDelete: false,
+                     arguments: null);
+
+            channel.QueueBind(_options.QueueName, _options.ExchangeName, "", null);
         }
     }
 }

@@ -30,7 +30,6 @@ namespace Chat.Bot.API.Controllers
         public async Task<IActionResult> GetLastMessages([FromQuery] int messageQty, [FromQuery] string roomId)
         {
             return Response(_mapper.Map<IEnumerable<MessageViewModel>>(await _messageService.GetLastMessages(messageQty, roomId)));
-            //_hubContext.Groups.AddToGroupAsync()   
         }
 
         [HttpPost]

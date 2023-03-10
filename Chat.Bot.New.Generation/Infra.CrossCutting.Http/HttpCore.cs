@@ -1,5 +1,4 @@
-﻿
-using Infra.CrossCutting.Log.Interfaces;
+﻿using Infra.CrossCutting.Log.Interfaces;
 using Newtonsoft.Json;
 using System.Net;
 using System.Text;
