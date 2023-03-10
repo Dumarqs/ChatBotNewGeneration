@@ -49,5 +49,10 @@ namespace Application.Services
 
             return null;
         }
+
+        public async Task<UserDto> GetUser(Guid id)
+        {
+            return _mapper.Map<UserDto>(await _userRepository.GetById(id));
+        }
     }
 }

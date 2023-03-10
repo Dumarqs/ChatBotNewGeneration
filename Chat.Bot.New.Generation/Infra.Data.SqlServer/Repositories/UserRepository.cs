@@ -15,5 +15,7 @@ namespace Infra.Data.SqlServer.Repositories
         }
 
         public async Task<User> Authenticate(string email) => await _context.Users.SingleOrDefaultAsync(x => x.Email == email);
+
+        public async Task<User> GetById(Guid id) => await _context.Users.AsNoTracking().FirstOrDefaultAsync(t => t.UserId == id);
     }
 }

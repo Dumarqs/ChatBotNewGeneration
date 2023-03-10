@@ -15,13 +15,15 @@ namespace Chat.Bot.API.Controllers
         private readonly IHubContext<ChatBotHub> _hubContext;
         private readonly IMapper _mapper;
         private readonly IMessageService _messageService;
+        private readonly IUserService _userService;
         public ChatController(ILoggerAdapter<ChatController> logger, IHubContext<ChatBotHub> hubContext, IMapper mapper,
-                            IMessageService messageService)
+                            IMessageService messageService, IUserService userService)
         {
-            _loggerAdapter= logger;
-            _hubContext= hubContext;
-            _mapper= mapper;
-            _messageService= messageService;
+            _loggerAdapter = logger;
+            _hubContext = hubContext;
+            _mapper = mapper;
+            _messageService = messageService;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -29,6 +31,15 @@ namespace Chat.Bot.API.Controllers
         {
             return Response(_mapper.Map<IEnumerable<MessageViewModel>>(await _messageService.GetLastMessages(messageQty, roomId)));
             //_hubContext.Groups.AddToGroupAsync()   
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendMessageClient([FromQuery] MessageViewModel message)
+        {
+            var user = await _userService.GetUser(message.UserId);
+            await _hubContext.Clients.Client(user.ConnectionId).SendAsync("Message", message);
+
+            return Ok();
         }
     }
 }

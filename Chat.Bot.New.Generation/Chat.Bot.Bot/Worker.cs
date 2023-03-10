@@ -1,4 +1,4 @@
-using Application.Services;
+using Application.Services.Interfaces;
 using Chat.Bot.Bot.Models;
 using Chat.Bot.Bot.ViewModels;
 using Infra.CrossCutting.Log.Interfaces;

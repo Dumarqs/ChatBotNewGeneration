@@ -31,6 +31,6 @@ namespace Infra.Data.SqlServer.Repositories
 
         public async Task<int> SaveChanges() => await Db.SaveChangesAsync();
 
-        public async virtual Task Add(TEntity obj) => await DbSet.AddAsync(obj);
+        public async virtual Task Add(TEntity obj) => await DbSet.AddAsync(obj);        
     }
 }

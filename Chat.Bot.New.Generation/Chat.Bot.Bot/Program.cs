@@ -1,4 +1,5 @@
 using Application.Services;
+using Application.Services.Interfaces;
 using Chat.Bot.Bot.Models;
 using Domain.Core.RabbitMQ;
 using Infra.CrossCutting.IoC;

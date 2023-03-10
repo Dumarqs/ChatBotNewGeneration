@@ -6,7 +6,9 @@
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "RabbitConnection__ConnectionName": "Test Jobsity 2023",
-        "RabbitConnection__Uri": "amqp://guest:guest@localhost:5672"
+        "RabbitConnection__Uri": "amqp://guest:guest@localhost:5672",
+        "WorkerParameters__QueueName": "consume.bot",
+        "WorkerParameters__ApiUrl": "https://localhost:7203/chat"
       }
     }
   }
