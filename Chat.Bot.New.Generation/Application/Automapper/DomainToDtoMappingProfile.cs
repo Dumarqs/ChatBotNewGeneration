@@ -10,7 +10,7 @@ namespace Application.Automapper
         {
             CreateMap<Room, RoomDto>();
             CreateMap<User, UserDto>();
-
+            CreateMap<Message, MessageDto>();
         }
     }
 }

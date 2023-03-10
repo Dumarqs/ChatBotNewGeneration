@@ -10,6 +10,7 @@ namespace Chat.Bot.API.Automapper
         {
             CreateMap<RoomDto, RoomViewModel>();
             CreateMap<UserDto, UserViewModel>();
+            CreateMap<MessageDto, MessageViewModel>();
 
         }
     }

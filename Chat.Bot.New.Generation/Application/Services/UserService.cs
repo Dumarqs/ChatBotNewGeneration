@@ -32,5 +32,22 @@ namespace Application.Services
             await _userRepository.Add(user);
             await _userRepository.SaveChanges();
         }
+
+        public async Task<UserDto> Authenticate(UserDto userDto)
+        {            
+            if (string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Password))
+                return null;
+
+            var user = await _userRepository.Authenticate(userDto.Email);
+
+            // check if username exists
+            if (user == null)
+                return null;
+
+            if (user.Password == userDto.Password)
+                return _mapper.Map<UserDto>(user); 
+
+            return null;
+        }
     }
 }

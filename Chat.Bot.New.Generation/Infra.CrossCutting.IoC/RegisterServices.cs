@@ -10,6 +10,7 @@ namespace Infra.CrossCutting.IoC
         {
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IMessageService, MessageService>();
         }
     }
 }

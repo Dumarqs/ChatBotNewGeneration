@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Infra.CrossCutting.Http\Infra.CrossCutting.Http.csproj" />
     <ProjectReference Include="..\Infra.CrossCutting.Log\Infra.CrossCutting.Log.csproj" />
     <ProjectReference Include="..\Infra.CrossCutting.RabbitMQ\Infra.CrossCutting.RabbitMQ.csproj" />
     <ProjectReference Include="..\Infra.Data.SqlServer\Infra.Data.SqlServer.csproj" />

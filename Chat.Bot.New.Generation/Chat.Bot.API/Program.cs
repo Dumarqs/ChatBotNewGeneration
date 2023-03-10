@@ -1,8 +1,11 @@
 using Application.Automapper;
 using Chat.Bot.API.Automapper;
 using Chat.Bot.API.Hubs;
+using Chat.Bot.API.ViewModels;
 using Domain.Core.CnnStrings;
 using Infra.CrossCutting.IoC;
+using Infra.Data.SqlServer.Contexts;
+using Microsoft.AspNetCore.Identity;
 
 namespace Chat.Bot.API
 {
@@ -31,8 +34,7 @@ namespace Chat.Bot.API
             builder.Services.AddSignalR();
 
             builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            builder.Configuration.AddEnvironmentVariables();
-            
+            builder.Configuration.AddEnvironmentVariables();            
 
             builder.Services.AddCors(options =>
             {
@@ -47,6 +49,12 @@ namespace Chat.Bot.API
             builder.Services.AddAutoMapper(typeof(DtoToDomainMappingProfile));
             builder.Services.AddAutoMapper(typeof(ViewModelToDtoMappingProfile));
             builder.Services.AddAutoMapper(typeof(DtoToViewModelMappingProfile));
+
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => {
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+            }).AddEntityFrameworkStores<ChatBotContext>();
 
             var app = builder.Build();
 
@@ -63,6 +71,7 @@ namespace Chat.Bot.API
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapHealthChecks("/check");
