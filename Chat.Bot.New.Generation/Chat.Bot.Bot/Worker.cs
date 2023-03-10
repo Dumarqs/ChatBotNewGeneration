@@ -25,7 +25,7 @@ namespace Chat.Bot.Bot
             _options = options;
 
             _connection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:7203/chat", options  =>
+                .WithUrl(_options.ApiUrl, options  =>
                 {
                     options.AccessTokenProvider = () => Task.FromResult("");
                 })
@@ -38,7 +38,7 @@ namespace Chat.Bot.Bot
         {
             if (message.IsCommand())
             {
-                var quote = _stockQuoteService.GetStockQuoteCSV();
+                var quote = _stockQuoteService.GetStockQuoteCSV(_options.UriCsv);
                 _logger.LogInformation($"Command Received: {quote}");
 
                 var channel = new QueueMqMessage(_rabbitMQ, _options.ExchangeName, _options.QueueName, _options.RecordsPerBatch);

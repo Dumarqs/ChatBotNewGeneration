@@ -13,7 +13,6 @@ namespace Infra.CrossCutting.IoC
             services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
             services.AddSingleton<IPooledObjectPolicy<IModel>, RabbitModelPooledObjectPolicy>();
             services.AddSingleton<IRabbitMQManager, RabbitMQManager>();
-            //services.AddSingleton<IQueueRabbitMQ, QueueRabbitMQ>();
         }
     }
 }
