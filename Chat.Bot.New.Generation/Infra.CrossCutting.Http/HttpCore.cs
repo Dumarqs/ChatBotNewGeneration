@@ -1,4 +1,5 @@
-﻿using Infra.CrossCutting.Log.Interfaces;
+﻿using Domain.Core.Http;
+using Infra.CrossCutting.Log.Interfaces;
 using Newtonsoft.Json;
 using System.Net;
 using System.Text;
@@ -36,18 +37,22 @@ namespace Infra.CrossCutting.Http
             }
         }
 
-        public virtual async Task<HttpStatusCode> PostAsync(string url, string name, T content, CancellationToken cancellationToken = default)
+        public virtual async Task<Response> PostAsync(string url, string name, T content, CancellationToken cancellationToken = default)
         {
-            HttpResponseMessage response = new();
+            HttpResponseMessage responseMessage = new();
+            var response = new Response();
             try
             {
                 using var client = _httpClient.CreateClient(name);
                 var json = JsonConvert.SerializeObject(content, Newtonsoft.Json.Formatting.Indented);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-                response = await client.PostAsync(url, data, cancellationToken);
+                responseMessage = await client.PostAsync(url, data, cancellationToken);
+                
+                response.ResponseContent = await responseMessage.Content.ReadAsStringAsync();
+                response.Status = responseMessage.StatusCode;
 
-                return response.StatusCode;
+                return response;
             }
             catch (Exception ex)
             {

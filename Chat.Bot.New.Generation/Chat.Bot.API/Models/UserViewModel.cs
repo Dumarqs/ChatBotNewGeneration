@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Chat.Bot.API.ViewModels
+namespace Chat.Bot.API.Models
 {
     public class UserViewModel
     {
         [Key]
         public Guid UserId { get; set; }
         [Required]
+
         public string Name { get; set; }
         [Required]
         [DataType(DataType.EmailAddress)]

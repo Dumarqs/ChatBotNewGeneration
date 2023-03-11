@@ -1,11 +1,16 @@
 using Application.Automapper;
 using Chat.Bot.API.Automapper;
 using Chat.Bot.API.Hubs;
-using Chat.Bot.API.ViewModels;
+using Chat.Bot.API.Identity;
+using Chat.Bot.API.Models;
+using Chat.Bot.API.Models;
 using Domain.Core.CnnStrings;
 using Infra.CrossCutting.IoC;
-using Infra.Data.SqlServer.Contexts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Chat.Bot.API
 {
@@ -50,11 +55,35 @@ namespace Chat.Bot.API
             builder.Services.AddAutoMapper(typeof(ViewModelToDtoMappingProfile));
             builder.Services.AddAutoMapper(typeof(DtoToViewModelMappingProfile));
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => {
-                options.SignIn.RequireConfirmedAccount = false;
-                options.SignIn.RequireConfirmedEmail = false;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-            }).AddEntityFrameworkStores<ChatBotContext>();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddDefaultTokenProviders();
+
+            builder.Services.AddTransient<IUserStore<ApplicationUser>, UserStore>();
+            builder.Services.AddTransient<IRoleStore<IdentityRole>, RoleStore>();
+
+            JwtConfigurations jwtOptions = builder.Configuration.GetSection("JwtParameters").Get<JwtConfigurations>();
+            builder.Services.AddSingleton(jwtOptions);
+
+            // Adding Authentication
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    //ValidAudience = jwtOptions.Audience,
+                    ValidIssuer = jwtOptions.Issuer,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
+                };
+            });
 
             var app = builder.Build();
 

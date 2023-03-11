@@ -17,7 +17,11 @@
       "applicationUrl": "https://localhost:7203",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings__CnnDB": "Data Source=localhost,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
+        "ConnectionStrings__CnnDB": "Data Source=localhost,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false",
+        "JwtParameters__Audience": "",
+        "JwtParameters__Issuer": "https://localhost:7203",
+        "JwtParameters__Secret": "ThebeautyofLifedependhowyouseetheworld",
+        "JwtParameters__ExpiresHours": "24"
       }
     }
   }

@@ -1,12 +1,15 @@
 ﻿using Application.Services.Interfaces;
 using AutoMapper;
+using Chat.Bot.API.Models;
 using Chat.Bot.API.ViewModels;
 using Domain.Dtos;
 using Infra.CrossCutting.Log.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Chat.Bot.API.Hubs
 {
+    [Authorize]
     public class ChatBotHub : Hub
     {
         private readonly ILoggerAdapter<ChatBotHub> _loggerAdapter;
@@ -33,7 +36,7 @@ namespace Chat.Bot.API.Hubs
             if (!messageViewModel.IsCommand())
             {
                 var messageDto = _mapper.Map<MessageDto>(messageViewModel);
-                //await _messageService.SaveMessage(messageDto);
+                await _messageService.SaveMessage(messageDto);
             }
         }
 
@@ -41,15 +44,15 @@ namespace Chat.Bot.API.Hubs
         {
             if (!Context.User.Identity.IsAuthenticated)
             {
-                // possible send a message back to the client (and show the result to the user)
-                //this.Clients.SendUnauthenticatedMessage("You don't have the correct permissions for this action.");
+                await Clients.User(Context.ConnectionId).SendAsync("You don't have the correct permissions for this action.");
                 return;
             }
             else
             {
-                if(Context.User.Identity.Name == "BOT")
+                if(Context.User.IsInRole("Bot"))
                 {
                     _bots.Add(Context.ConnectionId);
+                    _loggerAdapter.LogInformation($"Bot {Context.ConnectionId} is connected.");
                 }
 
                 await base.OnConnectedAsync();

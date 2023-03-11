@@ -1,7 +1,7 @@
 ﻿using Application.Services.Interfaces;
 using AutoMapper;
 using Chat.Bot.API.Controllers.Base;
-using Chat.Bot.API.ViewModels;
+using Chat.Bot.API.Models;
 using Domain.Core.SqlServer;
 using Domain.Dtos;
 using Infra.CrossCutting.Log.Interfaces;

@@ -17,7 +17,7 @@ namespace Application.Services
 
         public async Task SendMessageAsync(MessageDto message, string uri)
         {
-            await PostAsync(uri + "chat/sendMessageClient", "bot", message);
+            await PostAsync(uri + "/chat/sendMessageClient", "bot", message);
         }
     }
 }

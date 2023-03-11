@@ -1,4 +1,4 @@
-﻿namespace Chat.Bot.API.ViewModels
+﻿namespace Chat.Bot.API.Models
 {
     public class MessageViewModel
     {

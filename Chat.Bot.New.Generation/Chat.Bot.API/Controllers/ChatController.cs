@@ -2,7 +2,7 @@
 using AutoMapper;
 using Chat.Bot.API.Controllers.Base;
 using Chat.Bot.API.Hubs;
-using Chat.Bot.API.ViewModels;
+using Chat.Bot.API.Models;
 using Infra.CrossCutting.Log.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;

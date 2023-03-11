@@ -1,9 +1,10 @@
 using Application.Services;
 using Application.Services.Interfaces;
 using Chat.Bot.Bot.Models;
+using Chat.Bot.Bot.Services;
+using Chat.Bot.Bot.Services.Interfaces;
 using Domain.Core.RabbitMQ;
 using Infra.CrossCutting.IoC;
-using Microsoft.Extensions.Configuration;
 
 namespace Chat.Bot.Bot
 {
@@ -35,6 +36,7 @@ namespace Chat.Bot.Bot
                     services.AddSingleton(factory);
 
                     services.AddSingleton<IStockQuoteService, StockQuoteService>();
+                    services.AddTransient<IAuthenticateBot, AuthenticateBot>();
 
                     services.AddHttpClient();
                 })

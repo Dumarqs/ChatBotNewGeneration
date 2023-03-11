@@ -1,5 +1,7 @@
 using Application.Services.Interfaces;
 using Chat.Bot.Bot.Models;
+using Chat.Bot.Bot.Services;
+using Chat.Bot.Bot.Services.Interfaces;
 using Chat.Bot.Bot.ViewModels;
 using Infra.CrossCutting.Log.Interfaces;
 using Infra.CrossCutting.RabbitMQ;
@@ -16,25 +18,16 @@ namespace Chat.Bot.Bot
         private readonly IStockQuoteService _stockQuoteService;
         private readonly IRabbitMQManager _rabbitMQ;
         private readonly WorkerParameters _options;
+        private readonly IAuthenticateBot _authenticateBot;
 
         public Worker(ILoggerAdapter<Worker> logger, IStockQuoteService stockQuoteService, IRabbitMQManager rabbitMQ,
-                      WorkerParameters options)
+                      WorkerParameters options, IAuthenticateBot authenticateBot)
         {
             _logger = logger;
-            _stockQuoteService= stockQuoteService;
+            _stockQuoteService = stockQuoteService;
             _rabbitMQ = rabbitMQ;
             _options = options;
-
-            _connection = new HubConnectionBuilder()
-                .WithUrl(_options.ApiUrl, options  =>
-                {
-                    options.AccessTokenProvider = () => Task.FromResult("");
-                })
-                .Build();
-
-            _connection.On<Message>("Message", MessageReceive);
-
-            CreateQueue();
+            _authenticateBot = authenticateBot;
         }
 
         public Task MessageReceive(Message message)
@@ -46,7 +39,7 @@ namespace Chat.Bot.Bot
 
                 var channel = new QueueMqMessage(_rabbitMQ, _options.ExchangeName, _options.QueueName, _options.RecordsPerBatch);
                 channel.QueueMessage(quote);
-            }         
+            }
 
             return Task.CompletedTask;
         }
@@ -54,6 +47,30 @@ namespace Chat.Bot.Bot
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            CreateQueue();
+
+            var token = string.Empty;
+
+            for (int i = 0; i < 5; i++)
+            {
+                try
+                {
+                    token = await _authenticateBot.AuthenticateBotAsync();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    //if fails try again in one second
+                    _logger.LogError(ex, ex.Message);
+                    await Task.Delay(1000, cancellationToken);
+                }
+            }
+
+            if (string.IsNullOrEmpty(token))
+                throw new Exception("Bot not authenticated");
+
+            CreateHubConnection(token);
+
             //Keep trying to connect
             while (true)
             {
@@ -63,7 +80,7 @@ namespace Chat.Bot.Bot
 
                     break;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     //if fails try again in one second
                     _logger.LogError(ex, ex.Message);
@@ -97,6 +114,18 @@ namespace Chat.Bot.Bot
                      arguments: null);
 
             channel.QueueBind(_options.QueueName, _options.ExchangeName, "", null);
+        }
+
+        private void CreateHubConnection(string token)
+        {
+            _connection = new HubConnectionBuilder()
+                        .WithUrl(_options.ApiUrl + "/chat", options =>
+                        {
+                            options.AccessTokenProvider = () => Task.FromResult(token);
+                        })
+                        .Build();
+
+            _connection.On<Message>("Message", MessageReceive);
         }
     }
 }

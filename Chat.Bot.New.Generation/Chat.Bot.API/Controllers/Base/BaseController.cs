@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Chat.Bot.API.Controllers.Base
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]/[action]")]
     [Produces("application/json")]
     public abstract class BaseController : ControllerBase
