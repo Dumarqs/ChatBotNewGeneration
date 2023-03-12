@@ -2,12 +2,15 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using Chat.Bot.UI.Model
 @inject NavigationManager Navigation
-@inject IHttpClientFactory ClientFactory
+@inject HttpClient _httpClient
 @using System.Text.Json
 @using System.Web
 @using System.Text.Json.Serialization
-@inject Chat.Bot.UI.Services.ChatBotService chatbotService;
+@using System.Net.Http.Headers;
+@inject Config config
+@inject ILocalStorageService _localStorage
 @implements IAsyncDisposable
+@inject IHttpClientFactory ClientFactory
 
 <div class="form-group">
     <label>
@@ -37,7 +40,7 @@
 <ul id="messagesList">
     @foreach (var message in messages)
     {
-        <li>@message.UserId @message.Text at @message.DtInserted</li>
+        <li>@message.User.Name @message.Text at @message.DtInserted</li>
     }
 </ul>
 
@@ -50,29 +53,56 @@
     private Message message = new Message();
     private string messageInput = string.Empty;
     private int messagesQty = 50;
+    private string token = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        token = await _localStorage.GetItemAsync<string>("authToken");
+        user = await _localStorage.GetItemAsync<User>("user");
+
+        await LoadRooms();
+        await CreateHubConnection();
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+    private async Task CreateHubConnection()
+    {
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(chatbotService.GetBaseUrl() + "chat")
+            .WithUrl(config.GetBaseUrl() + "/Chat", options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult(token);
+                options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets;
+                options.SkipNegotiation = true;
+            })
             .Build();
 
         hubConnection.On<Message>("Message", (messageReceived) =>
         {
-            var encodedMsg = $"{user.Name}: {messageReceived.Text} at {messageReceived.DtInserted}";
+            var encodedMsg = $"{messageReceived.User.Name}: {messageReceived.Text} at {messageReceived.DtInserted}";
             messages.Add(messageReceived);
             QuantityMessagesAllowed();
+
+            messageInput = string.Empty;
+
             StateHasChanged();
         });
 
         await hubConnection.StartAsync();
-
-        await LoadRooms();
     }
 
     private void QuantityMessagesAllowed()
     {
-        if(messages.Count > messagesQty)
+        if (messages.Count > messagesQty)
         {
             messages.RemoveAt(0);
         }
@@ -87,18 +117,13 @@
                 var roomId = new Guid(e.Value.ToString());
                 room = rooms.First(f => f.RoomId == roomId);
 
-                var builder = new UriBuilder(chatbotService.GetBaseUrl() + "chat/GetLastMessages");
+                var builder = new UriBuilder(config.GetBaseUrl() + "/chat/GetLastMessages");
                 var query = HttpUtility.ParseQueryString(builder.Query);
                 query["messageQty"] = messagesQty.ToString();
                 query["roomId"] = roomId.ToString();
-
                 builder.Query = query.ToString();
 
-                var request = new HttpRequestMessage(HttpMethod.Get, builder.ToString());
-
-                var client = ClientFactory.CreateClient();
-
-                var response = await client.SendAsync(request);
+                var response = await _httpClient.GetAsync(builder.ToString());
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -112,47 +137,37 @@
         }
     }
 
+    private async Task LoadRooms()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, config.GetBaseUrl() + "/Room/GetAllRoom");
+        Console.WriteLine(token);
+        Console.WriteLine(config.GetBaseUrl() + "/Room/GetAllRoom");
+
+        var client = ClientFactory.CreateClient();
+
+        client.DefaultRequestHeaders.Add("Accept", "*/*");
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+
+        var response = await client.GetAsync(config.GetBaseUrl() + "/Room/GetAllRoom");
+        if (response.IsSuccessStatusCode)
+        { 
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+            rooms = await JsonSerializer.DeserializeAsync<IEnumerable<Room>>(responseStream);
+        }
+    }
+
     private async Task Send()
     {
         if (hubConnection is not null)
         {
+            user.ConnectionId = string.Empty;
             var message = new Message();
             message.Text = messageInput;
-
-            user.UserId = new Guid("CB231A7C-A41B-4AF4-80F1-131BFD7D7897");
-            user.Name = "Teste";
-
-            message.UserId = user.UserId;
+            message.User = user;
             message.RoomId = room.RoomId;
             message.DtInserted = DateTime.Now;
 
             await hubConnection.SendAsync("SendMessage", message);
-        }
-    }
-
-    public bool IsConnected =>
-        hubConnection?.State == HubConnectionState.Connected;
-
-    public async ValueTask DisposeAsync()
-    {
-        if (hubConnection is not null)
-        {
-            await hubConnection.DisposeAsync();
-        }
-    }
-
-    private async Task LoadRooms()
-    {
-        var request = new HttpRequestMessage(HttpMethod.Get, chatbotService.GetBaseUrl() + "room/GetAllRoom");
-
-        var client = ClientFactory.CreateClient();
-
-        var response = await client.SendAsync(request);
-
-        if (response.IsSuccessStatusCode)
-        {
-            using var responseStream = await response.Content.ReadAsStreamAsync();
-            rooms = await JsonSerializer.DeserializeAsync<IEnumerable<Room>>(responseStream);
         }
     }
 }

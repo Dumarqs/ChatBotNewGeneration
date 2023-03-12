@@ -1,10 +1,10 @@
 ﻿namespace Chat.Bot.UI.Services
 {
-    public class ChatBotService
+    public class ApiService
     {
         private readonly HttpClient httpClient;
 
-        public ChatBotService(HttpClient httpClient)
+        public ApiService(HttpClient httpClient)
         {
             this.httpClient = httpClient;
         }

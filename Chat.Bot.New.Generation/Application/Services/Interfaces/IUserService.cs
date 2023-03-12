@@ -9,5 +9,6 @@ namespace Application.Services.Interfaces
         Task AddUser(UserDto roomDto);
         Task<UserDto> Authenticate(UserDto userDto);
         Task<UserDto> GetUser(Guid id);
+        Task UpdateUser(UserDto userDto);
     }
 }

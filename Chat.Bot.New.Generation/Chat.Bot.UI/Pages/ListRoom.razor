@@ -1,10 +1,12 @@
-﻿@page "/listRoom"
+﻿@page "/ListRoom"
 @using Chat.Bot.UI.Model
 @using System.Text.Json
 @using System.Web
 @using System.Text.Json.Serialization
-@inject Chat.Bot.UI.Services.ChatBotService chatbotService;
+@using System.Net.Http.Headers;
+@inject Config chatbotService;
 @inject IHttpClientFactory ClientFactory
+@inject ILocalStorageService _localStorage
 
 <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <style>
@@ -25,7 +27,7 @@
    }
 </style>
 
-<a class="btn btn-primary" href='/AddRoom'>Add new Room</a>
+<a class="btn btn-primary" href='/createroom'>Add new Room</a>
 
 @if (rooms == null)
 {
@@ -99,6 +101,7 @@ else
         set { searchTerm = value; FilterRecords(); }
     }
     private IEnumerable<Room> rooms = Array.Empty<Room>();
+
     #region Pagination
     int totalPages;
     int totalRecords;
@@ -109,9 +112,13 @@ else
     int endPage;
     string sortColumnName = "Id";
     string sortDir = "ASC";
+    string token = string.Empty;
     #endregion
+
     protected override async Task OnInitializedAsync()
     {
+        token = await _localStorage.GetItemAsync<string>("authToken");
+
         //display total page buttons
         await LoadList((curPage - 1) * pageSize, 5, searchTerm);
 
@@ -124,7 +131,7 @@ else
 
     private async Task LoadList(int skip, int take, string search)                           
     {
-        var builder = new UriBuilder(chatbotService.GetBaseUrl() + "Room/GetRoomFiltered");
+        var builder = new UriBuilder(chatbotService.GetBaseUrl() + "/Room/GetRoomFiltered");
         var query = HttpUtility.ParseQueryString(builder.Query);
         query["skip"] = skip.ToString();
         query["take"] = take.ToString();
@@ -132,6 +139,7 @@ else
         builder.Query = query.ToString();
 
         var request = new HttpRequestMessage(HttpMethod.Get, builder.ToString());
+        request.Headers.Authorization = new AuthenticationHeaderValue("bearer", token);
 
         var client = ClientFactory.CreateClient();
 

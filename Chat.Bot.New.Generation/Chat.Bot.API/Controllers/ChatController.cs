@@ -35,7 +35,7 @@ namespace Chat.Bot.API.Controllers
         [HttpPost]
         public async Task<IActionResult> SendMessageClient([FromQuery] MessageViewModel message)
         {
-            var user = await _userService.GetUser(message.UserId);
+            var user = await _userService.GetUser(message.User.UserId);
             await _hubContext.Clients.Client(user.ConnectionId).SendAsync("Message", message);
 
             return Ok();

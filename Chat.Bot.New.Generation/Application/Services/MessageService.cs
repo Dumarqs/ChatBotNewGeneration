@@ -21,7 +21,7 @@ namespace Application.Services
         public async Task<IEnumerable<MessageDto>> GetLastMessages(int messageQty, string roomId)
         {
             var filter = new Filter { Field = "RoomId = @0", Search = roomId, Take = messageQty };
-            var messages = await _messageRepository.GetFiltered(filter);
+            var messages = await _messageRepository.GetMessagesFiltered(filter);
             return _mapper.Map<IEnumerable<MessageDto>>(messages);
         }
 
@@ -30,8 +30,7 @@ namespace Application.Services
             var message = _mapper.Map<Message>(messageDto);
             message.MessageId = Guid.NewGuid();
 
-            await _messageRepository.Add(message);
-            await _messageRepository.SaveChanges();
+            await _messageRepository.AddMessage(message);
         }
     }
 }

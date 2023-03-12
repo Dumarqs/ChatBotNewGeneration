@@ -6,8 +6,8 @@ namespace Chat.Bot.UI.Model
     {
         [JsonPropertyName("messageId")]
         public Guid MessageId { get; set; }
-        [JsonPropertyName("userId")]
-        public Guid UserId { get; set; }
+        [JsonPropertyName("user")]
+        public User User { get; set; }
         [JsonPropertyName("roomId")]
         public Guid RoomId { get; set; }
         [JsonPropertyName("text")]

@@ -9,6 +9,7 @@ namespace Infra.Data.SqlServer.Mappings
         public void Configure(EntityTypeBuilder<Message> builder)
         {
             builder.HasKey(c => c.MessageId);
+            builder.HasOne(c => c.User);
         }
     }
 }

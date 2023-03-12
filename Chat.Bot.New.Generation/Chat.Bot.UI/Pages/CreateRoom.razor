@@ -1,11 +1,14 @@
-﻿@page "/addRoom"
+﻿@page "/createroom"
 @using Chat.Bot.UI.Model
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.Text
-@inject Microsoft.AspNetCore.Components.NavigationManager navigationManager
-@inject Chat.Bot.UI.Services.ChatBotService chatbotService;
+@using System.Net.Http.Headers;
+@inject NavigationManager navigationManager
+@inject Config chatbotService;
 @inject IHttpClientFactory ClientFactory
+@inject ILocalStorageService _localStorage
+
 <h3>
     Add Room
 </h3>
@@ -29,7 +32,7 @@
                 <td>
                     <br />
                     <button type="button" class="btn btn-primary"
-                            @onclick="() => CreateRoom()">
+                            @onclick="() => Create()">
                         &#8195;Save&#8195;
                     </button>&#8194;
                     <button type="button" class="btn btn-warning"
@@ -45,9 +48,10 @@
 @code {
     Room room = new Room();
 
-    protected async Task CreateRoom()
+    protected async Task Create()
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, chatbotService.GetBaseUrl() + "Room/CreateRoom");
+        var request = new HttpRequestMessage(HttpMethod.Post, chatbotService.GetBaseUrl() + "/Room/CreateRoom");
+        request.Headers.Authorization = new AuthenticationHeaderValue("bearer", await _localStorage.GetItemAsync<string>("authToken"));
 
         var requestJson = JsonSerializer.Serialize(room);
         var data = new StringContent(requestJson, Encoding.UTF8, "application/json");

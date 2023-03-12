@@ -6,6 +6,7 @@
         Task<IEnumerable<TEntity>> GetAll();
         Task<int> SaveChanges();
         Task Add(TEntity obj);
+        void Update(TEntity obj);
     }
 
 }

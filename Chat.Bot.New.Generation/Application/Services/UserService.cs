@@ -33,6 +33,14 @@ namespace Application.Services
             await _userRepository.SaveChanges();
         }
 
+        public async Task UpdateUser(UserDto userDto)
+        {
+            var user = _mapper.Map<User>(userDto);
+            _userRepository.Update(user);
+
+            await _userRepository.SaveChanges();
+        }
+
         public async Task<UserDto> Authenticate(UserDto userDto)
         {            
             if (string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Password))

@@ -6,6 +6,7 @@ using Domain.Dtos;
 using Infra.CrossCutting.Log.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace Chat.Bot.API.Hubs
 {
@@ -14,15 +15,17 @@ namespace Chat.Bot.API.Hubs
     {
         private readonly ILoggerAdapter<ChatBotHub> _loggerAdapter;
         private readonly IMessageService _messageService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
         private IList<RoomManagerViewModel> _rooms = new List<RoomManagerViewModel>();
         private IList<string> _bots = new List<string>();
 
-        public ChatBotHub(ILoggerAdapter<ChatBotHub> logger, IMessageService messageService, IMapper mapper)
+        public ChatBotHub(ILoggerAdapter<ChatBotHub> logger, IMessageService messageService, IMapper mapper, IUserService userService)
         {
             _loggerAdapter = logger;
             _messageService = messageService;
             _mapper = mapper;
+            _userService = userService;
         }
 
 
@@ -30,7 +33,10 @@ namespace Chat.Bot.API.Hubs
         {
             _loggerAdapter.LogInformation($"Message: {messageViewModel.Text}");
 
-            await RoomExists(messageViewModel.RoomId);
+            messageViewModel.User.ConnectionId = Context.ConnectionId;
+
+            //await RoomExists(messageViewModel.RoomId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, messageViewModel.RoomId.ToString());
             await Clients.Group(messageViewModel.RoomId.ToString()).SendAsync("Message", messageViewModel);
 
             if (!messageViewModel.IsCommand())
@@ -49,11 +55,20 @@ namespace Chat.Bot.API.Hubs
             }
             else
             {
-                if(Context.User.IsInRole("Bot"))
+                if (Context.User.IsInRole("Bot"))
                 {
                     _bots.Add(Context.ConnectionId);
                     _loggerAdapter.LogInformation($"Bot {Context.ConnectionId} is connected.");
                 }
+                else if (Context.User.IsInRole("User"))
+                {
+                    var user = await _userService.GetUser(new Guid(Context.User.Claims.First(f => f.Type == ClaimTypes.NameIdentifier).Value));
+                    user.ConnectionId = Context.ConnectionId;
+
+                    await _userService.UpdateUser(user);
+                }
+                else
+                    throw new Exception("Role not recognized.");
 
                 await base.OnConnectedAsync();
             }            
@@ -61,7 +76,7 @@ namespace Chat.Bot.API.Hubs
 
         private async Task RoomExists(Guid roomName)
         {
-            var room = _rooms.First(f => f.RoomId == roomName);
+            var room = _rooms.FirstOrDefault(f => f.RoomId == roomName);
             if (room == null)
             {
                 room = new RoomManagerViewModel
@@ -78,8 +93,9 @@ namespace Chat.Bot.API.Hubs
 
         private async Task TryAddToGroup(RoomManagerViewModel room)
         {
-            var user = room.UserConnected.First(f => f.ConnectionId == Context.ConnectionId);
-            if (user != null)
+            //TODO
+            var user = room.UserConnected.FirstOrDefault(f => f.ConnectionId == Context.ConnectionId);
+            if (user == null)
             {
                 room.UserConnected.Add(user);
 

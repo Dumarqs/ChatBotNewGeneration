@@ -26,11 +26,11 @@ namespace Chat.Bot.API.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserController(ILoggerAdapter<UserController> logger,
-                              IUserService userService, 
+                              IUserService userService,
                               IMapper mapper,
                               UserManager<ApplicationUser> userManager,
-                              SignInManager<ApplicationUser> signInManager, 
-                              JwtConfigurations jwtConfigurations, 
+                              SignInManager<ApplicationUser> signInManager,
+                              JwtConfigurations jwtConfigurations,
                               RoleManager<IdentityRole> roleManager)
         {
             _logger = logger;
@@ -53,25 +53,28 @@ namespace Chat.Bot.API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
-            if(user != null)
+            if (user != null)
             {
                 var result = await _signInManager.PasswordSignInAsync(user, model.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(user, "User");
                     _logger.LogInformation("User logged in.");
 
                     var authClaims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.UserName.ToString()),
-                    new Claim(ClaimTypes.Role, "User")
-                };
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id),
+                        new Claim(ClaimTypes.Name, user.UserName?.ToString()),
+                        new Claim(ClaimTypes.Role, "User")
+                    };
 
                     var securityToken = GetToken(authClaims);
                     var handler = new JwtSecurityTokenHandler();
                     var token = handler.WriteToken(securityToken);
 
-                    return Ok(token);
+                    var userViewModel = _mapper.Map<UserViewModel>(user);
+                    userViewModel.Token = token;
+
+                    return Ok(userViewModel);
                 }
             }
             return BadRequest();
@@ -79,7 +82,7 @@ namespace Chat.Bot.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> LoginBot()
+        public async Task<IActionResult> LoginBot([FromBody] LoginViewModel model)
         {
             var user = new ApplicationUser
             {
@@ -93,6 +96,7 @@ namespace Chat.Bot.API.Controllers
 
             var authClaims = new List<Claim>
                 {
+                    //new Claim(ClaimTypes.NameIdentifier, user.Id),
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.Role, "Bot")
                 };
@@ -118,9 +122,9 @@ namespace Chat.Bot.API.Controllers
         {
             var user = new ApplicationUser
             {
-                Email= model.Email,
-                UserName= model.Name,
-                PasswordHash= model.Password
+                Email = model.Email,
+                UserName = model.Name,
+                PasswordHash = model.Password
             };
 
             var result = await _userManager.CreateAsync(user);

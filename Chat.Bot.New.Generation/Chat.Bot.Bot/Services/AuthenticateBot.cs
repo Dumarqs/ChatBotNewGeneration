@@ -2,6 +2,7 @@
 using Chat.Bot.Bot.Services.Interfaces;
 using Infra.CrossCutting.Http;
 using Infra.CrossCutting.Log.Interfaces;
+using System.Text.Json;
 
 namespace Chat.Bot.Bot.Services
 {
@@ -19,10 +20,10 @@ namespace Chat.Bot.Bot.Services
 
         public async Task<string> AuthenticateBotAsync()
         {
-            var response = await PostAsync(_options.ApiUrl + "/Bot/LoginBot", "bot", null);
+            var response = await PostAsync(_options.ApiUrl + "/User/LoginBot", "bot", null);
 
             if (response.Status == System.Net.HttpStatusCode.OK)
-                return response.ResponseContent;
+                return JsonSerializer.Deserialize<String>(response.ResponseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             return string.Empty;
         }

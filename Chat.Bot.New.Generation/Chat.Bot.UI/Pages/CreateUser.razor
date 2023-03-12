@@ -1,11 +1,10 @@
-﻿@page "/addUser"
+﻿@page "/createuser"
 @using Chat.Bot.UI.Model
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using System.Text
-@inject Microsoft.AspNetCore.Components.NavigationManager navigationManager
-@inject Chat.Bot.UI.Services.ChatBotService chatbotService;
-@inject IHttpClientFactory ClientFactory
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
 <h3>
     Add User
 </h3>
@@ -50,7 +49,7 @@
                 <td>
                     <br />
                     <button type="button" class="btn btn-primary"
-                            @onclick="() => CreateUser()">
+                            @onclick="() => Create()">
                         &#8195;Save&#8195;
                     </button>&#8194;
                     <button type="button" class="btn btn-warning"
@@ -65,20 +64,24 @@
 
 @code {
     User user = new User();
+    private bool ShowErrors;
+    private IEnumerable<string> Errors;
 
-    protected async Task CreateUser()
+    protected async Task Create()
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, chatbotService.GetBaseUrl() + "User/CreateUser");
+        ShowErrors = false;
 
-        var requestJson = JsonSerializer.Serialize(user);
-        var data = new StringContent(requestJson, Encoding.UTF8, "application/json");
-        request.Content = data;
+        var result = await AuthService.Register(user);
 
-        var client = ClientFactory.CreateClient();
-
-        var response = await client.SendAsync(request);
-        if (response.IsSuccessStatusCode)
-            Cancel();
+        //if (result.Successful)
+        //{
+            NavigationManager.NavigateTo("/login");
+        //}
+        //else
+        //{
+        //    Errors = result.Errors;
+        //    ShowErrors = true;
+        //}
     }
-    void Cancel() => navigationManager.NavigateTo("/listUser");
+    void Cancel() => NavigationManager.NavigateTo("/");
 }

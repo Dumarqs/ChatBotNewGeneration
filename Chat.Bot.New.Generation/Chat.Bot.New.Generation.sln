@@ -41,7 +41,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 - Applications", "02 - A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{01EA9E13-F52F-4C76-ADFC-B4DF5C59133C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infra.CrossCutting.Http", "Infra.CrossCutting.Http\Infra.CrossCutting.Http.csproj", "{BC107769-BC0E-436F-8EE3-CFD59C9F03EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infra.CrossCutting.Http", "Infra.CrossCutting.Http\Infra.CrossCutting.Http.csproj", "{BC107769-BC0E-436F-8EE3-CFD59C9F03EE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
