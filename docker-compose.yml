@@ -57,6 +57,7 @@ services:
       - JwtParameters__Issuer: "https://localhost:7203"
       - JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
       - JwtParameters__ExpiresHours: "24"
+      - applicationUrl: "https://localhost:7146"
     restart: on-failure
     
   consumer:
