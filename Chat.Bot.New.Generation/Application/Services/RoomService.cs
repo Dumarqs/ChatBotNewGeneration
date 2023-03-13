@@ -30,13 +30,15 @@ namespace Application.Services
             return _mapper.Map<IEnumerable<RoomDto>>(room);
         }
 
-        public async Task AddRoom(RoomDto roomDto)
+        public async Task<RoomDto> AddRoom(RoomDto roomDto)
         {
             var room = _mapper.Map<Room>(roomDto);
             room.RoomId = Guid.NewGuid();
 
             await _roomRepository.Add(room);
             await _roomRepository.SaveChanges();
+
+            return _mapper.Map<RoomDto>(room);
         }
     }
 }

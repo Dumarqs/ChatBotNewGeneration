@@ -2,6 +2,6 @@
 {
     public interface IAuthenticateBot
     {
-        Task<string> AuthenticateBotAsync(); 
+        Task<string> AuthenticateBotAsync(string botUser); 
     }
 }

@@ -6,6 +6,6 @@ namespace Chat.Bot.UI.Services.Interfaces
     {
         Task<LoginResponseModel> Login(LoginModel loginModel);
         Task Logout();
-        Task<ResponseModel> Register(User registerModel);
+        Task<ResponseModel> Register(RegisterModel registerModel);
     }
 }

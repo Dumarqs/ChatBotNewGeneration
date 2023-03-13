@@ -6,21 +6,19 @@ using System.Text.Json;
 
 namespace Chat.Bot.Bot.Services
 {
-    public class AuthenticateBot : HttpCore<AuthenticateBot>, IAuthenticateBot
+    public class AuthenticateBot : HttpCore<string>, IAuthenticateBot
     {
-        private readonly ILoggerAdapter<AuthenticateBot> _loggerAdapter;
         private readonly WorkerParameters _options;
 
-        public AuthenticateBot(ILoggerAdapter<AuthenticateBot> logger, IHttpClientFactory httpClient,
+        public AuthenticateBot(ILoggerAdapter<string> logger, IHttpClientFactory httpClient,
                                WorkerParameters options ) : base(logger, httpClient)
         {
             _options= options;
-            _loggerAdapter = logger;
         }
 
-        public async Task<string> AuthenticateBotAsync()
+        public async Task<string> AuthenticateBotAsync(string botUser)
         {
-            var response = await PostAsync(_options.ApiUrl + "/User/LoginBot", "bot", null);
+            var response = await PostAsync(_options.ApiUrl + "/User/LoginBot", "bot", botUser);
 
             if (response.Status == System.Net.HttpStatusCode.OK)
                 return JsonSerializer.Deserialize<String>(response.ResponseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });

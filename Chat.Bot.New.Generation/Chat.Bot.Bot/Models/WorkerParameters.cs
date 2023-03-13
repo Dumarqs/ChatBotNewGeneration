@@ -10,5 +10,6 @@
         public int RecordsPerBatch { get; set; }
         public string UriCsv { get; set; }
         public string ApiUrl { get; set; }
+        public string UserBot { get; set; }
     }
 }

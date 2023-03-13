@@ -35,6 +35,16 @@
             </tr>
             <tr>
                 <td>
+                    <label for="UConfirm" class="control-label">
+                        Password Confirmation
+                    </label>
+                </td>
+                <td>
+                    <InputText type="password" placeholder="Password" @bind-Value="@user.ConfirmPassword" />
+                </td>
+            </tr>
+            <tr>
+                <td>
                     <label for="UEmail" class="control-label">
                         Email
                     </label>
@@ -63,7 +73,7 @@
 </form>
 
 @code {
-    User user = new User();
+    RegisterModel user = new RegisterModel();
     private bool ShowErrors;
     private IEnumerable<string> Errors;
 
@@ -73,15 +83,15 @@
 
         var result = await AuthService.Register(user);
 
-        //if (result.Successful)
-        //{
+        if (result.Successful)
+        {
             NavigationManager.NavigateTo("/login");
-        //}
-        //else
-        //{
+        }
+        else
+        {
         //    Errors = result.Errors;
         //    ShowErrors = true;
-        //}
+        }
     }
     void Cancel() => NavigationManager.NavigateTo("/");
 }

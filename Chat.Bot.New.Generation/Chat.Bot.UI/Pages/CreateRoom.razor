@@ -4,6 +4,8 @@
 @using System.Text.Json.Serialization
 @using System.Text
 @using System.Net.Http.Headers;
+@using Microsoft.AspNetCore.SignalR.Client
+@inject Config config
 @inject NavigationManager navigationManager
 @inject Config chatbotService;
 @inject IHttpClientFactory ClientFactory
@@ -50,8 +52,9 @@
 
     protected async Task Create()
     {
+        var token = await _localStorage.GetItemAsync<string>("authToken");
         var request = new HttpRequestMessage(HttpMethod.Post, chatbotService.GetBaseUrl() + "/Room/CreateRoom");
-        request.Headers.Authorization = new AuthenticationHeaderValue("bearer", await _localStorage.GetItemAsync<string>("authToken"));
+        request.Headers.Authorization = new AuthenticationHeaderValue("bearer", token);
 
         var requestJson = JsonSerializer.Serialize(room);
         var data = new StringContent(requestJson, Encoding.UTF8, "application/json");
@@ -60,8 +63,32 @@
         var client = ClientFactory.CreateClient();
 
         var response = await client.SendAsync(request);
-        if (response.IsSuccessStatusCode)            
+        if (response.IsSuccessStatusCode)
+        {
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+            room = await JsonSerializer.DeserializeAsync<Room>(responseStream);
+
+            await AddBotsToRoom(token, room);
             Cancel();
+        }
     }
+
+    private async Task AddBotsToRoom(string token, Room room)
+    {
+        var hubConnection = new HubConnectionBuilder()
+        .WithUrl(config.GetBaseUrl() + "/Chat", options =>
+        {
+            options.AccessTokenProvider = () => Task.FromResult(token);
+            options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets;
+            options.SkipNegotiation = true;
+        })
+        .Build();
+
+        await hubConnection.StartAsync();
+
+        if (hubConnection is not null)
+            await hubConnection.InvokeAsync("AddBotsToNewGroup", (room));
+    }
+
     void Cancel() => navigationManager.NavigateTo("/listRoom");
 }

@@ -7,6 +7,6 @@ namespace Application.Services.Interfaces
     {
         Task<IEnumerable<RoomDto>> GetAllRoom();
         Task<IEnumerable<RoomDto>> GetRoomFiltered(Filter filter);
-        Task AddRoom(RoomDto roomDto);
+        Task<RoomDto> AddRoom(RoomDto roomDto);
     }
 }

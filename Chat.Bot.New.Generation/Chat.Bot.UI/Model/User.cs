@@ -16,5 +16,7 @@ namespace Chat.Bot.UI.Model
         public string ConnectionId { get; set; }
         [JsonPropertyName("token")]
         public string Token { get; set; }
+        [JsonPropertyName("role")]
+        public string Role { get; set; }
     }
 }

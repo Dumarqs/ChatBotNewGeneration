@@ -10,6 +10,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05 - Tests", "05 - Tests", "{AC05F20A-3F6D-47EF-B294-B5F6B292786E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "00 - Docker", "00 - Docker", "{F06067F6-93B3-4300-9C7F-A30BE8BDA066}"
+	ProjectSection(SolutionItems) = preProject
+		..\DockerFileAPI = ..\DockerFileAPI
+		..\DockerFileBot = ..\DockerFileBot
+		..\DockerFileConsumer = ..\DockerFileConsumer
+		..\DockerFileUI = ..\DockerFileUI
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 - Presenters", "01 - Presenters", "{1292E900-6640-443D-A252-EE65A423052D}"
 EndProject

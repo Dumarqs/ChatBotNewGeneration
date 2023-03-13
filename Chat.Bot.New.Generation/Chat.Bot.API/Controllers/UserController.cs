@@ -82,24 +82,35 @@ namespace Chat.Bot.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> LoginBot()
+        public async Task<IActionResult> LoginBot([FromBody] string userLogin)
         {
-            var user = new ApplicationUser
+            var user = await _userManager.FindByEmailAsync(userLogin);
+            if(user == null)
             {
-                Email = "bot@test.com",
-                UserName = "bot@test.com",
-                PasswordHash = "solo322"
-            };
+                user = new ApplicationUser
+                {
+                    Email = userLogin,
+                    UserName = userLogin,
+                    PasswordHash = userLogin,
+                    Role = "Bot"
+                };
+
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Not able to create user bot");
+                }
+            }
 
             await _signInManager.SignInAsync(user, isPersistent: false);
             _logger.LogInformation("Bot logged.");
 
             var authClaims = new List<Claim>
-                {
-                    //new Claim(ClaimTypes.NameIdentifier, user.Id),
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, "Bot")
-                };
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
 
             var securityToken = GetToken(authClaims);
             var handler = new JwtSecurityTokenHandler();
@@ -124,7 +135,8 @@ namespace Chat.Bot.API.Controllers
             {
                 Email = model.Email,
                 UserName = model.Name,
-                PasswordHash = model.Password
+                PasswordHash = model.Password,
+                Role = "User"
             };
 
             var result = await _userManager.CreateAsync(user);
@@ -145,7 +157,7 @@ namespace Chat.Bot.API.Controllers
             var token = new JwtSecurityToken(
                 issuer: _jwtConfigurations.Issuer,
                 //audience: _configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddHours(_jwtConfigurations.ExpiresHours),
+                expires: DateTime.Now.AddHours(int.Parse(_jwtConfigurations.ExpiresHours)),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                 );

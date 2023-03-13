@@ -2,6 +2,6 @@
 {
     public class ResponseModel
     {
-
+        public bool Successful { get; set; }
     }
 }

@@ -1,13 +1,11 @@
 using Application.Services.Interfaces;
 using Chat.Bot.Bot.Models;
-using Chat.Bot.Bot.Services;
 using Chat.Bot.Bot.Services.Interfaces;
 using Chat.Bot.Bot.ViewModels;
 using Infra.CrossCutting.Log.Interfaces;
 using Infra.CrossCutting.RabbitMQ;
 using Infra.CrossCutting.RabbitMQ.Interfaces;
 using Microsoft.AspNetCore.SignalR.Client;
-using System.Threading.Channels;
 
 namespace Chat.Bot.Bot
 {
@@ -64,7 +62,7 @@ namespace Chat.Bot.Bot
             {
                 try
                 {
-                    token = await _authenticateBot.AuthenticateBotAsync();
+                    token = await _authenticateBot.AuthenticateBotAsync(_options.UserBot);
                     break;
                 }
                 catch (Exception ex)

@@ -2,6 +2,6 @@
 {
     public interface IAuthenticateConsumer
     {
-        Task<string> AuthenticateConsumerAsync();
+        Task<string> AuthenticateConsumerAsync(string userConsumer);
     }
 }

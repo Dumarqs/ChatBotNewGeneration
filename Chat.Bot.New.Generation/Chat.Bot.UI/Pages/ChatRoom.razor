@@ -1,12 +1,12 @@
 ﻿@page "/ChatRoom"
 @using Microsoft.AspNetCore.SignalR.Client
 @using Chat.Bot.UI.Model
-@inject NavigationManager Navigation
-@inject HttpClient _httpClient
 @using System.Text.Json
 @using System.Web
 @using System.Text.Json.Serialization
 @using System.Net.Http.Headers;
+@inject NavigationManager Navigation
+@inject HttpClient _httpClient
 @inject Config config
 @inject ILocalStorageService _localStorage
 @implements IAsyncDisposable
@@ -62,6 +62,7 @@
 
         await LoadRooms();
         await CreateHubConnection();
+        await AddBotToRooms();
     }
 
     public bool IsConnected =>
@@ -169,5 +170,11 @@
 
             await hubConnection.SendAsync("SendMessage", message);
         }
+    }
+
+    private async Task AddBotToRooms()
+    {
+        if (hubConnection is not null)
+            await hubConnection.InvokeAsync("AddUserToGroups", (rooms));
     }
 }

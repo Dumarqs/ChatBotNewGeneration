@@ -27,13 +27,17 @@ namespace Chat.Bot.UI.Services
             _config = config;
         }
 
-        public async Task<ResponseModel> Register(User user)
+        public async Task<ResponseModel> Register(RegisterModel register)
         {
-            var requestJson = JsonSerializer.Serialize(user);
+            var requestJson = JsonSerializer.Serialize(register);
             var data = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(_config.GetBaseUrl() + "/User/CreateUser", data);
-            var result = JsonSerializer.Deserialize<ResponseModel>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var response = await _httpClient.PostAsync(_config.GetBaseUrl() + "/User/Register", data);
+            var result = new ResponseModel();
+            if (response.IsSuccessStatusCode)
+                result.Successful = true;
+            else
+                result.Successful = false;
 
             return result;
         }

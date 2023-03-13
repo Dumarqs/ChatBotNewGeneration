@@ -39,8 +39,8 @@ namespace Chat.Bot.API.Controllers
         public async Task<IActionResult> CreateRoom([FromBody] RoomViewModel roomViewModel)
         {
             var roomDto = _mapper.Map<RoomDto>(roomViewModel);
-            await _roomService.AddRoom(roomDto);
-            return Ok();
+            var room = await _roomService.AddRoom(roomDto);
+            return Ok(_mapper.Map<RoomViewModel>(room));
         }
     }
 }

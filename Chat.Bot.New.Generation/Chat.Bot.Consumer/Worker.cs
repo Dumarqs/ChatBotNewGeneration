@@ -73,7 +73,7 @@ namespace Chat.Bot.Consumer
             {
                 try
                 {
-                    token = await _authenticateConsumer.AuthenticateConsumerAsync();
+                    token = await _authenticateConsumer.AuthenticateConsumerAsync(_options.UserConsumer);
                     break;
                 }
                 catch (Exception ex)

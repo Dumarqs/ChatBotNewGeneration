@@ -38,13 +38,14 @@ services:
     build:
       dockerfile: ./DockerFileBot
     environment:
-      - RabbitConnection__ConnectionName: "Test Jobsity 2023",
-      - RabbitConnection__Uri: "amqp://guest:guest@localhost:5672",
-      - WorkerParameters__ExchangeName: "exchange.consume.bot",
-      - WorkerParameters__QueueName: "consume.bot",
-      - WorkerParameters__RecordsPerBatch: "10",
-      - WorkerParameters__UriCsv: "https://stooq.com/q/l/",
+      - RabbitConnection__ConnectionName: "Test Jobsity 2023"
+      - RabbitConnection__Uri: "amqp://guest:guest@localhost:5672"
+      - WorkerParameters__ExchangeName: "exchange.consume.bot"
+      - WorkerParameters__QueueName: "consume.bot"
+      - WorkerParameters__RecordsPerBatch: "10"
+      - WorkerParameters__UriCsv: "https://stooq.com/q/l/"
       - WorkerParameters__ApiUrl: "https://localhost:7203"
+      - WorkerParameters__UserBot : "bot@bot.com"
     restart: on-failure
     
   ui:
@@ -62,9 +63,10 @@ services:
     build:
       dockerfile: ./DockerFileConsumer
     environment:
-      - RabbitConnection__ConnectionName: "Test Jobsity 2023",
-      - RabbitConnection__Uri: "amqp://guest:guest@localhost:5672",
-      - WorkerParameters__QueueName: "consume.bot",
+      - RabbitConnection__ConnectionName: "Test Jobsity 2023"
+      - RabbitConnection__Uri: "amqp://guest:guest@localhost:5672"
+      - WorkerParameters__QueueName: "consume.bot"
       - WorkerParameters__ApiUrl: "https://localhost:7203"
+      - WorkerParameters__UserConsumer: "consumer@bot.com"
     restart: on-failure
     

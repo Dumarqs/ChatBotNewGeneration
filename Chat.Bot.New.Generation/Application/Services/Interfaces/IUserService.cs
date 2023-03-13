@@ -7,7 +7,6 @@ namespace Application.Services.Interfaces
     {
         Task<IEnumerable<UserDto>> GetUserFiltered(Filter filter);
         Task AddUser(UserDto roomDto);
-        Task<UserDto> Authenticate(UserDto userDto);
         Task<UserDto> GetUser(Guid id);
         Task UpdateUser(UserDto userDto);
     }

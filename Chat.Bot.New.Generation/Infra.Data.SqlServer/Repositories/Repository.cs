@@ -22,8 +22,12 @@ namespace Infra.Data.SqlServer.Repositories
 
         public async virtual Task<IEnumerable<TEntity>> GetFiltered(Filter filter)
         {
+            if(filter.Take == 0)
+                return await DbSet.AsNoTracking().Where(filter.Field, filter.Search).ToListAsync();
+
             if (!String.IsNullOrEmpty(filter.Search))
                 return await DbSet.AsNoTracking().Where(filter.Field, filter.Search).Skip(filter.Skip).Take(filter.Take).ToListAsync();
+
             else
                 return await DbSet.AsNoTracking().Skip(filter.Skip).Take(filter.Take).ToListAsync();
         }
