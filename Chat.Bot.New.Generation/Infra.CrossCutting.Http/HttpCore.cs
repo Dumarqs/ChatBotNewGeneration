@@ -2,6 +2,7 @@
 using Infra.CrossCutting.Log.Interfaces;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Infra.CrossCutting.Http
@@ -37,7 +38,7 @@ namespace Infra.CrossCutting.Http
             }
         }
 
-        public virtual async Task<Response> PostAsync(string url, string name, T content, CancellationToken cancellationToken = default)
+        public virtual async Task<Response> PostAsync(string url, string name, T content, string token = "", CancellationToken cancellationToken = default)
         {
             HttpResponseMessage responseMessage = new();
             var response = new Response();
@@ -46,6 +47,8 @@ namespace Infra.CrossCutting.Http
                 using var client = _httpClient.CreateClient(name);
                 var json = JsonConvert.SerializeObject(content, Newtonsoft.Json.Formatting.Indented);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
+                if(token != null)
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
 
                 responseMessage = await client.PostAsync(url, data, cancellationToken);
                 

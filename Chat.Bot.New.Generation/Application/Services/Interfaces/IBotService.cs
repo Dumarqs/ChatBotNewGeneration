@@ -4,6 +4,6 @@ namespace Application.Services.Interfaces
 {
     public interface IBotService
     {
-        Task SendMessageAsync(MessageDto message, string uri);
+        Task SendMessageAsync(MessageDto message, string uri, string token);
     }
 }

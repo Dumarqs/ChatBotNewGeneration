@@ -2,6 +2,8 @@ using Application.Services;
 using Application.Services.Interfaces;
 using Chat.Bot.Consumer.Automapper;
 using Chat.Bot.Consumer.Models;
+using Chat.Bot.Consumer.Services;
+using Chat.Bot.Consumer.Services.Interfaces;
 using Domain.Core.RabbitMQ;
 using Infra.CrossCutting.IoC;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -36,10 +38,11 @@ namespace Chat.Bot.Consumer
                     services.TryAddSingleton(factory);
 
                     services.TryAddSingleton<IBotService, BotService>();
+                    services.TryAddTransient<IAuthenticateConsumer, AuthenticateConsumer>();
 
                     services.AddHttpClient();
 
-                    services.AddAutoMapper(typeof(ViewModelToDtoMappingProfile));
+                    services.AddAutoMapper(typeof(MappingProfile));
                 })
                 .Build();
 

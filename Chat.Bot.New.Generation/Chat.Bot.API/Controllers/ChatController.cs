@@ -3,6 +3,7 @@ using AutoMapper;
 using Chat.Bot.API.Controllers.Base;
 using Chat.Bot.API.Hubs;
 using Chat.Bot.API.Models;
+using Domain.Dtos;
 using Infra.CrossCutting.Log.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -33,7 +34,7 @@ namespace Chat.Bot.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendMessageClient([FromQuery] MessageViewModel message)
+        public async Task<IActionResult> SendMessageClient([FromBody] MessageDto message)
         {
             var user = await _userService.GetUser(message.User.UserId);
             await _hubContext.Clients.Client(user.ConnectionId).SendAsync("Message", message);

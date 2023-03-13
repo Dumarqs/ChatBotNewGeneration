@@ -5,6 +5,7 @@ using Chat.Bot.Bot.Services;
 using Chat.Bot.Bot.Services.Interfaces;
 using Domain.Core.RabbitMQ;
 using Infra.CrossCutting.IoC;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Chat.Bot.Bot
 {
@@ -29,15 +30,15 @@ namespace Chat.Bot.Bot
                     services.ServicesRabbitQueue();
 
                     WorkerParameters options = configuration.GetSection("WorkerParameters").Get<WorkerParameters>();
-                    services.AddSingleton(options);
+                    services.TryAddSingleton(options);
 
                     //RabbitMQ Configs
                     ConnectionMqOptions factory = configuration.GetSection("RabbitConnection").Get<ConnectionMqOptions>();
-                    services.AddSingleton(factory);
+                    services.TryAddSingleton(factory);
 
-                    services.AddSingleton<IStockQuoteService, StockQuoteService>();
-                    services.AddTransient<IAuthenticateBot, AuthenticateBot>();
-                    services.AddTransient<ICommandValidation, CommandValidation>();
+                    services.TryAddSingleton<IStockQuoteService, StockQuoteService>();
+                    services.TryAddTransient<IAuthenticateBot, AuthenticateBot>();
+                    services.TryAddTransient<ICommandValidation, CommandValidation>();
 
                     services.AddHttpClient();
                 })

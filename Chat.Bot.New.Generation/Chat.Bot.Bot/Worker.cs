@@ -40,13 +40,16 @@ namespace Chat.Bot.Bot
                 var command = _commandValidation.IsValidCommand(message.Text);
                 if (!command.IsValid)
                 {
-                    channel.QueueMessage("Command is not valid!");
+                    message.Text = "Command is not valid!";
+                    channel.QueueMessage(message);
                 }
 
                 var quote = await _stockQuoteService.GetStockQuoteCSV(_options.UriCsv, command.Value);
                 _logger.LogInformation($"Command Received: {quote}");
 
-                channel.QueueMessage(quote);
+                message.Text = quote;
+
+                channel.QueueMessage(message);
             }
         }
 

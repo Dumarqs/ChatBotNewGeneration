@@ -15,9 +15,9 @@ namespace Application.Services
             _logger = logger;
         }
 
-        public async Task SendMessageAsync(MessageDto message, string uri)
+        public async Task SendMessageAsync(MessageDto message, string uri, string token)
         {
-            await PostAsync(uri + "/chat/sendMessageClient", "bot", message);
+            await PostAsync(uri + "/chat/sendMessageClient", "bot", message, token);
         }
     }
 }
