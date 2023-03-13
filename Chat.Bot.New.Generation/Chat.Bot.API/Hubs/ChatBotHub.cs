@@ -1,7 +1,6 @@
 ﻿using Application.Services.Interfaces;
 using AutoMapper;
 using Chat.Bot.API.Models;
-using Chat.Bot.API.ViewModels;
 using Domain.Dtos;
 using Infra.CrossCutting.Log.Interfaces;
 using Microsoft.AspNetCore.Authorization;

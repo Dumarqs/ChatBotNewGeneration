@@ -76,8 +76,6 @@ namespace Chat.Bot.Bot
                 throw new Exception("Bot not authenticated");
 
             CreateHubConnection(token);
-
-            //Keep trying to connect
             while (true)
             {
                 try

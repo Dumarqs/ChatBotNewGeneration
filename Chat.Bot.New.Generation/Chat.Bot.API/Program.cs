@@ -2,6 +2,7 @@ using Application.Automapper;
 using Chat.Bot.API.Automapper;
 using Chat.Bot.API.Hubs;
 using Chat.Bot.API.Identity;
+using Chat.Bot.API.Middlewares;
 using Chat.Bot.API.Models;
 using Chat.Bot.API.Models;
 using Domain.Core.CnnStrings;
@@ -110,6 +111,8 @@ namespace Chat.Bot.API
             {
                 app.UseHsts();
             }
+
+            app.UseMiddleware<ErrorHandlerMiddleware>();
 
             app.UseHttpsRedirection();
 
