@@ -16,16 +16,17 @@ namespace Chat.Bot.API.Hubs
         private readonly ILoggerAdapter<ChatBotHub> _loggerAdapter;
         private readonly IMessageService _messageService;
         private readonly IUserService _userService;
+        private readonly IRoomService _roomService;
         private readonly IMapper _mapper;
-        private IList<RoomManagerViewModel> _rooms = new List<RoomManagerViewModel>();
-        private IList<string> _bots = new List<string>();
 
-        public ChatBotHub(ILoggerAdapter<ChatBotHub> logger, IMessageService messageService, IMapper mapper, IUserService userService)
+        public ChatBotHub(ILoggerAdapter<ChatBotHub> logger, IMessageService messageService, IMapper mapper,
+                                        IUserService userService, IRoomService roomService)
         {
             _loggerAdapter = logger;
             _messageService = messageService;
             _mapper = mapper;
             _userService = userService;
+            _roomService = roomService;
         }
 
 
@@ -57,7 +58,12 @@ namespace Chat.Bot.API.Hubs
             {
                 if (Context.User.IsInRole("Bot"))
                 {
-                    _bots.Add(Context.ConnectionId);
+                    var rooms = await _roomService.GetAllRoom();
+                    foreach(var room in rooms)
+                    {
+                        await AddBotsToGroup(room.RoomId.ToString());
+                    }
+
                     _loggerAdapter.LogInformation($"Bot {Context.ConnectionId} is connected.");
                 }
                 else if (Context.User.IsInRole("User"))
@@ -74,41 +80,9 @@ namespace Chat.Bot.API.Hubs
             }            
         }
 
-        private async Task RoomExists(Guid roomName)
+        public async Task AddBotsToGroup(string roomId)
         {
-            var room = _rooms.FirstOrDefault(f => f.RoomId == roomName);
-            if (room == null)
-            {
-                room = new RoomManagerViewModel
-                {
-                    RoomId = roomName,
-                    UserConnected = new List<UsersConnectedViewModel>()
-                };
-
-                _rooms.Add(room);
-                await AddBotsToGroup(room);
-            }
-            await TryAddToGroup(room);
-        }
-
-        private async Task TryAddToGroup(RoomManagerViewModel room)
-        {
-            //TODO
-            var user = room.UserConnected.FirstOrDefault(f => f.ConnectionId == Context.ConnectionId);
-            if (user == null)
-            {
-                room.UserConnected.Add(user);
-
-                await Groups.AddToGroupAsync(Context.ConnectionId, room.RoomId.ToString());
-            }
-        }
-
-        private async Task AddBotsToGroup(RoomManagerViewModel room)
-        {
-            foreach(var bot in _bots)
-            {
-                await Groups.AddToGroupAsync(bot, room.RoomId.ToString());
-            }
+            await Groups.AddToGroupAsync(Context.ConnectionId, roomId.ToString());
         }
     }
 }

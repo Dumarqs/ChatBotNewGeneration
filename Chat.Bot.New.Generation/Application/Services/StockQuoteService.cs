@@ -17,29 +17,34 @@ namespace Application.Services
             _logger = logger;
         }
 
-        public async Task<string> GetStockQuoteCSV(string uri)
+        public async Task<string> GetStockQuoteCSV(string uri, string stock)
         {
-            var content = await GetAsync(uri, "csv");
+            var uriFormatted = string.Format("{0}?s={1}&f=sd2t2ohlcv&h&e=csv", uri, stock);
+
+            var content = await GetAsync(uriFormatted, "csv");
             var quote = await GetStockPrice(content);
 
+            if(quote.Close == "N/D")
+                return $"{quote.Symbol} not found";
+
             return $"{quote.Symbol} quote is ${quote.Close:N2} per share";
+
         }
 
         private async Task<CsvStockQuote> GetStockPrice(string content)
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                HasHeaderRecord = false,
+                HasHeaderRecord = true,
             };
 
-            using var reader = new StreamReader(content);
+            using var reader = new StringReader(content);
             using (var csv = new CsvReader(reader, config))
             {
-                var records = csv.GetRecords<CsvStockQuote>();
+                var records = csv.GetRecords<CsvStockQuote>().ToList();
                 if (records.Any())
                     return records.First();
             }
-
             return null;
         }
     }

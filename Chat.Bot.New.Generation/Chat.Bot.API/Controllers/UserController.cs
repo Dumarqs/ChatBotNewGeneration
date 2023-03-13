@@ -82,7 +82,7 @@ namespace Chat.Bot.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> LoginBot([FromBody] LoginViewModel model)
+        public async Task<IActionResult> LoginBot()
         {
             var user = new ApplicationUser
             {

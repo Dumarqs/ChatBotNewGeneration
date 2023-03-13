@@ -10,6 +10,6 @@ namespace Domain.Files
     {
         public string Symbol { get; set; }
 
-        public decimal Close { get; set; }
+        public string Close { get; set; }
     }
 }

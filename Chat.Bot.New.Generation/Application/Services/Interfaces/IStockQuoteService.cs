@@ -2,6 +2,6 @@
 {
     public interface IStockQuoteService
     {
-        Task<string> GetStockQuoteCSV(string uri);
+        Task<string> GetStockQuoteCSV(string uri, string stock);
     }
 }

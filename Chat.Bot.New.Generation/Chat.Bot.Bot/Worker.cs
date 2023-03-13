@@ -19,29 +19,35 @@ namespace Chat.Bot.Bot
         private readonly IRabbitMQManager _rabbitMQ;
         private readonly WorkerParameters _options;
         private readonly IAuthenticateBot _authenticateBot;
+        private readonly ICommandValidation _commandValidation;
 
         public Worker(ILoggerAdapter<Worker> logger, IStockQuoteService stockQuoteService, IRabbitMQManager rabbitMQ,
-                      WorkerParameters options, IAuthenticateBot authenticateBot)
+                      WorkerParameters options, IAuthenticateBot authenticateBot, ICommandValidation commandValidation)
         {
             _logger = logger;
             _stockQuoteService = stockQuoteService;
             _rabbitMQ = rabbitMQ;
             _options = options;
             _authenticateBot = authenticateBot;
+            _commandValidation = commandValidation;
         }
 
-        public Task MessageReceive(Message message)
+        public async Task MessageReceive(Message message)
         {
             if (message.IsCommand())
             {
-                var quote = _stockQuoteService.GetStockQuoteCSV(_options.UriCsv);
+                var channel = new QueueMqMessage(_rabbitMQ, _options.ExchangeName, _options.QueueName, _options.RecordsPerBatch);
+                var command = _commandValidation.IsValidCommand(message.Text);
+                if (!command.IsValid)
+                {
+                    channel.QueueMessage("Command is not valid!");
+                }
+
+                var quote = await _stockQuoteService.GetStockQuoteCSV(_options.UriCsv, command.Value);
                 _logger.LogInformation($"Command Received: {quote}");
 
-                var channel = new QueueMqMessage(_rabbitMQ, _options.ExchangeName, _options.QueueName, _options.RecordsPerBatch);
                 channel.QueueMessage(quote);
             }
-
-            return Task.CompletedTask;
         }
 
 

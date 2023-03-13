@@ -10,7 +10,7 @@
         "WorkerParameters__ExchangeName": "exchange.consume.bot",
         "WorkerParameters__QueueName": "consume.bot",
         "WorkerParameters__RecordsPerBatch": "10",
-        "WorkerParameters__UriCsv": "https://stooq.com/q/l/?s=aapl.us&f=sd2t2ohlcv&h&e=csv",
+        "WorkerParameters__UriCsv": "https://stooq.com/q/l/",
         "WorkerParameters__ApiUrl": "https://localhost:7203"
       }
     }

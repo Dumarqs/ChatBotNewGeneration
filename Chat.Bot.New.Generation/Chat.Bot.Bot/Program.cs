@@ -37,6 +37,7 @@ namespace Chat.Bot.Bot
 
                     services.AddSingleton<IStockQuoteService, StockQuoteService>();
                     services.AddTransient<IAuthenticateBot, AuthenticateBot>();
+                    services.AddTransient<ICommandValidation, CommandValidation>();
 
                     services.AddHttpClient();
                 })
