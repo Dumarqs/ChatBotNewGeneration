@@ -1,6 +1,7 @@
 # ChatBotNewGeneration
 
 The project is divided in 4 parts
+
     - API: Contains .Net Identity, Signal R, JWT authentication
     - BOT: Keep monitoring all chats to check if any command is received, contains Signal R client and RabbitMQ
     - Consumer: Consume the queue and send information to the api, contains RabbitMQ Client
