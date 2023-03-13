@@ -22,3 +22,49 @@ services:
     volumes:
       - rabbit:/var/lib/rabbitmq/
       - rabbit:/var/log/rabbitmq
+      
+  api:
+    build:
+      dockerfile: ./DockerFileAPI
+    environment:
+      - ConnectionStrings__CnnDB: "Data Source=localhost,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
+      - JwtParameters__Audience: ""
+      - JwtParameters__Issuer: "https://localhost:7203"
+      - JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
+      - JwtParameters__ExpiresHours: "24"
+    restart: on-failure
+    
+  bot:
+    build:
+      dockerfile: ./DockerFileBot
+    environment:
+      - RabbitConnection__ConnectionName: "Test Jobsity 2023",
+      - RabbitConnection__Uri: "amqp://guest:guest@localhost:5672",
+      - WorkerParameters__ExchangeName: "exchange.consume.bot",
+      - WorkerParameters__QueueName: "consume.bot",
+      - WorkerParameters__RecordsPerBatch: "10",
+      - WorkerParameters__UriCsv: "https://stooq.com/q/l/",
+      - WorkerParameters__ApiUrl: "https://localhost:7203"
+    restart: on-failure
+    
+  ui:
+    build:
+      dockerfile: ./DockerFileUI
+    environment:
+      - ConnectionStrings__CnnDB: "Data Source=localhost,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
+      - JwtParameters__Audience: ""
+      - JwtParameters__Issuer: "https://localhost:7203"
+      - JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
+      - JwtParameters__ExpiresHours: "24"
+    restart: on-failure
+    
+  consumer:
+    build:
+      dockerfile: ./DockerFileConsumer
+    environment:
+      - RabbitConnection__ConnectionName: "Test Jobsity 2023",
+      - RabbitConnection__Uri: "amqp://guest:guest@localhost:5672",
+      - WorkerParameters__QueueName: "consume.bot",
+      - WorkerParameters__ApiUrl: "https://localhost:7203"
+    restart: on-failure
+    

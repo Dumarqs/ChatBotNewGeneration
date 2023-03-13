@@ -1,0 +1,33 @@
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+#FROM mcr.microsoft.com/dotnet/runtime:7.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+WORKDIR /app
+
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /src
+COPY ["Chat.Bot.Consumer/Chat.Bot.Consumer.csproj", "Chat.Bot.Consumer/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["Domain.Core.csproj", "Domain.Core/"]
+COPY ["Infra.CrossCutting.IoC/Infra.CrossCutting.IoC.csproj", "Infra.CrossCutting.IoC/"]
+COPY ["Infra.CrossCutting.Http/Infra.CrossCutting.Http.csproj", "Infra.CrossCutting.Http/"]
+COPY ["Infra.CrossCutting.Log/Infra.CrossCutting.Log.csproj", "Infra.CrossCutting.Log/"]
+COPY ["Infra.CrossCutting.RabbitMQ/Infra.CrossCutting.RabbitMQ.csproj", "Infra.CrossCutting.RabbitMQ/"]
+COPY ["Infra.Data.SqlServer/Infra.Data.SqlServer.csproj", "Infra.Data.SqlServer/"]
+RUN dotnet restore "Chat.Bot.Consumer/Chat.Bot.Consumer.csproj"
+COPY . .
+WORKDIR "/src/Chat.Bot.Consumer"
+RUN dotnet build "Chat.Bot.Consumer.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "Chat.Bot.Consumer.csproj" -c Release -o /app/publish
+
+# https://github.com/dotnet/SqlClient/issues/633#issuecomment-1207473798
+#RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf
+#RUN sed -i 's/CipherString = DEFAULT@SECLEVEL=2/CipherString = DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "Chat.Bot.Consumer.dll"]
