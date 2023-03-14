@@ -22,72 +22,72 @@ services:
     volumes:
       - /docker_conf/rabbitmq/data/:/var/lib/rabbitmq/
       
-  nginx:
-    image: reverse-proxy
-    container_name: nginx
-    build:
-        dockerfile: ./DockerFileNGINX
-    depends_on:
-      - api
-      - ui
-    restart: on-failure
+#  nginx:
+#    image: reverse-proxy
+#    container_name: nginx
+#    build:
+#        dockerfile: ./DockerFileNGINX
+#    depends_on:
+#      - api
+#      - ui
+#    restart: on-failure
 
-  api:
-    build:
-      dockerfile: ./DockerFileAPI
-    environment:
-      ConnectionStrings__CnnDB: "Data Source=sqlserver,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
-      JwtParameters__Audience: ""
-      JwtParameters__Issuer: "http://localhost:8080"
-      JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
-      JwtParameters__ExpiresHours: "24"
-      ASPNETCORE_ENVIRONMENT: "Development"
-    ports:
-      - "7203:443"
-      - "8080:80"
-    restart: on-failure
+#  api:
+#    build:
+#      dockerfile: ./DockerFileAPI
+#    environment:
+#      ConnectionStrings__CnnDB: "Data Source=sqlserver,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
+#      JwtParameters__Audience: ""
+#      JwtParameters__Issuer: "http://api"
+#      JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
+#     JwtParameters__ExpiresHours: "24"
+#      ASPNETCORE_ENVIRONMENT: "Development"
+#    ports:
+#      - "7203:443"
+#      - "8080:80"
+#    restart: on-failure
     
-  bot:
-    build:
-      dockerfile: ./DockerFileBot
-    depends_on:
-      - api
-      - rabbitmq
-    environment:
-      RabbitConnection__ConnectionName: "Test Jobsity 2023"
-      RabbitConnection__Uri: "amqp://guest:guest@rabbitmq:5672"
-      WorkerParameters__ExchangeName: "exchange.consume.bot"
-      WorkerParameters__QueueName: "consume.bot"
-      WorkerParameters__RecordsPerBatch: "10"
-      WorkerParameters__UriCsv: "https://stooq.com/q/l/"
-      WorkerParameters__ApiUrl: "http://localhost:8080"
-      WorkerParameters__UserBot : "bot@bot.com"
-    restart: on-failure
+#  bot:
+#    build:
+#      dockerfile: ./DockerFileBot
+#    depends_on:
+#      - api
+#      - rabbitmq
+#    environment:
+#      RabbitConnection__ConnectionName: "Test Jobsity 2023"
+#      RabbitConnection__Uri: "amqp://guest:guest@rabbitmq:5672"
+#      WorkerParameters__ExchangeName: "exchange.consume.bot"
+#      WorkerParameters__QueueName: "consume.bot"
+#      WorkerParameters__RecordsPerBatch: "10"
+#      WorkerParameters__UriCsv: "https://stooq.com/q/l/"
+#      WorkerParameters__ApiUrl: "http://api"
+#      WorkerParameters__UserBot : "bot@bot.com"
+#    restart: on-failure
     
-  ui:
-    build:
-      dockerfile: ./DockerFileUI
-    depends_on:
-      - api
-    environment:
-      applicationUrl: "http://localhost:8080"
-    ports:
-      - "7147:80"
-      - "7146:443"
-    restart: on-failure
+#  ui:
+#    build:
+#      dockerfile: ./DockerFileUI
+#    depends_on:
+#      - api
+#    environment:
+#      applicationUrl: "http://chatbot"
+#    ports:
+#      - "7147:80"
+#      - "7146:443"
+#    restart: on-failure
     
-  consumer:
-    build:
-      dockerfile: ./DockerFileConsumer
-    depends_on:
-      - api
-      - rabbitmq
-      - bot
-    environment:
-      RabbitConnection__ConnectionName: "Test Jobsity 2023"
-      RabbitConnection__Uri: "amqp://guest:guest@rabbitmq:5672"
-      WorkerParameters__QueueName: "consume.bot"
-      WorkerParameters__ApiUrl: "http://localhost:8080"
-      WorkerParameters__UserConsumer: "consumer@bot.com"
-    restart: on-failure
+#  consumer:
+#    build:
+#      dockerfile: ./DockerFileConsumer
+#    depends_on:
+#      - api
+#      - rabbitmq
+#      - bot
+#    environment:
+#      RabbitConnection__ConnectionName: "Test Jobsity 2023"
+#      RabbitConnection__Uri: "amqp://guest:guest@rabbitmq:5672"
+#      WorkerParameters__QueueName: "consume.bot"
+#      WorkerParameters__ApiUrl: "http://api"
+#      WorkerParameters__UserConsumer: "consumer@bot.com"
+#    restart: on-failure
     
