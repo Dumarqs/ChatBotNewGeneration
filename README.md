@@ -10,3 +10,5 @@ The project is divided in 4 parts
 ## To Run Docker
 
 To run the application in docker please type docker-compose up --build inside the project folder.
+The UI is hosted at http://localhost:7147/
+The API is hosted at https://localhost:7203/
