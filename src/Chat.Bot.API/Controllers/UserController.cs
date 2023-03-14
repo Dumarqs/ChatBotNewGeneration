@@ -100,6 +100,10 @@ namespace Chat.Bot.API.Controllers
                 {
                     throw new Exception("Not able to create user bot");
                 }
+                else
+                {
+                    user = await _userManager.FindByEmailAsync(userLogin);
+                }
             }
 
             await _signInManager.SignInAsync(user, isPersistent: false);
