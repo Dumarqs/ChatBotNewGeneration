@@ -20,8 +20,7 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - ./rabbit:/var/lib/rabbitmq/
-      - ./rabbit:/var/log/rabbitmq
+      - /docker_conf/rabbitmq/data/:/var/lib/rabbitmq/
       
   api:
     build:
