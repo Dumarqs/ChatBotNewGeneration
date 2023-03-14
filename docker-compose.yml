@@ -26,19 +26,30 @@ services:
     build:
       dockerfile: ./DockerFileAPI
     environment:
-      ConnectionStrings__CnnDB: "Data Source=localhost,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
+      ConnectionStrings__CnnDB: "Data Source=sqlserver,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
       JwtParameters__Audience: ""
       JwtParameters__Issuer: "https://localhost:7203"
       JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
       JwtParameters__ExpiresHours: "24"
+      ASPNETCORE_URLS: "https://+;http://+"
+      ASPNETCORE_HTTPS_PORT: "7203"
+      #ASPNETCORE_ENVIRONMENT: "Development"
+      #ASPNETCORE_Kestrel__Certificates__Development__Password: "123456"
+      #ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/servercert.pfx"
+    ports:
+      - "7203:443"
+      - "8080:80"
     restart: on-failure
     
   bot:
     build:
       dockerfile: ./DockerFileBot
+    depends_on:
+      - api
+      - rabbitmq
     environment:
       RabbitConnection__ConnectionName: "Test Jobsity 2023"
-      RabbitConnection__Uri: "amqp://guest:guest@localhost:5672"
+      RabbitConnection__Uri: "amqp://guest:guest@rabbitmq:5672"
       WorkerParameters__ExchangeName: "exchange.consume.bot"
       WorkerParameters__QueueName: "consume.bot"
       WorkerParameters__RecordsPerBatch: "10"
@@ -50,16 +61,25 @@ services:
   ui:
     build:
       dockerfile: ./DockerFileUI
+    depends_on:
+      - api
     environment:
       applicationUrl: "https://localhost:7146"
+    ports:
+      - "7147:80"
+      - "7146:443"
     restart: on-failure
     
   consumer:
     build:
       dockerfile: ./DockerFileConsumer
+    depends_on:
+      - api
+      - rabbitmq
+      - bot
     environment:
       RabbitConnection__ConnectionName: "Test Jobsity 2023"
-      RabbitConnection__Uri: "amqp://guest:guest@localhost:5672"
+      RabbitConnection__Uri: "amqp://guest:guest@rabbitmq:5672"
       WorkerParameters__QueueName: "consume.bot"
       WorkerParameters__ApiUrl: "https://localhost:7203"
       WorkerParameters__UserConsumer: "consumer@bot.com"
