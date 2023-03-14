@@ -4,9 +4,9 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-CU1-ubuntu-20.04
     container_name: 'sqlserver'
     environment:
-      ACCEPT_EULA="Y"
-      MSSQL_SA_PASSWORD="TestJobsity2023"
-      MSSQL_PID="Developer"
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "TestJobsity2023"
+      MSSQL_PID: "Developer"
     ports:
       - "1433:1433"
     volumes:
@@ -20,54 +20,49 @@ services:
       - 5672:5672
       - 15672:15672
     volumes:
-      - rabbit:/var/lib/rabbitmq/
-      - rabbit:/var/log/rabbitmq
+      - ./rabbit:/var/lib/rabbitmq/
+      - ./rabbit:/var/log/rabbitmq
       
   api:
     build:
       dockerfile: ./DockerFileAPI
     environment:
-      - ConnectionStrings__CnnDB: "Data Source=localhost,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
-      - JwtParameters__Audience: ""
-      - JwtParameters__Issuer: "https://localhost:7203"
-      - JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
-      - JwtParameters__ExpiresHours: "24"
+      ConnectionStrings__CnnDB: "Data Source=localhost,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
+      JwtParameters__Audience: ""
+      JwtParameters__Issuer: "https://localhost:7203"
+      JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
+      JwtParameters__ExpiresHours: "24"
     restart: on-failure
     
   bot:
     build:
       dockerfile: ./DockerFileBot
     environment:
-      - RabbitConnection__ConnectionName: "Test Jobsity 2023"
-      - RabbitConnection__Uri: "amqp://guest:guest@localhost:5672"
-      - WorkerParameters__ExchangeName: "exchange.consume.bot"
-      - WorkerParameters__QueueName: "consume.bot"
-      - WorkerParameters__RecordsPerBatch: "10"
-      - WorkerParameters__UriCsv: "https://stooq.com/q/l/"
-      - WorkerParameters__ApiUrl: "https://localhost:7203"
-      - WorkerParameters__UserBot : "bot@bot.com"
+      RabbitConnection__ConnectionName: "Test Jobsity 2023"
+      RabbitConnection__Uri: "amqp://guest:guest@localhost:5672"
+      WorkerParameters__ExchangeName: "exchange.consume.bot"
+      WorkerParameters__QueueName: "consume.bot"
+      WorkerParameters__RecordsPerBatch: "10"
+      WorkerParameters__UriCsv: "https://stooq.com/q/l/"
+      WorkerParameters__ApiUrl: "https://localhost:7203"
+      WorkerParameters__UserBot : "bot@bot.com"
     restart: on-failure
     
   ui:
     build:
       dockerfile: ./DockerFileUI
     environment:
-      - ConnectionStrings__CnnDB: "Data Source=localhost,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
-      - JwtParameters__Audience: ""
-      - JwtParameters__Issuer: "https://localhost:7203"
-      - JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
-      - JwtParameters__ExpiresHours: "24"
-      - applicationUrl: "https://localhost:7146"
+      applicationUrl: "https://localhost:7146"
     restart: on-failure
     
   consumer:
     build:
       dockerfile: ./DockerFileConsumer
     environment:
-      - RabbitConnection__ConnectionName: "Test Jobsity 2023"
-      - RabbitConnection__Uri: "amqp://guest:guest@localhost:5672"
-      - WorkerParameters__QueueName: "consume.bot"
-      - WorkerParameters__ApiUrl: "https://localhost:7203"
-      - WorkerParameters__UserConsumer: "consumer@bot.com"
+      RabbitConnection__ConnectionName: "Test Jobsity 2023"
+      RabbitConnection__Uri: "amqp://guest:guest@localhost:5672"
+      WorkerParameters__QueueName: "consume.bot"
+      WorkerParameters__ApiUrl: "https://localhost:7203"
+      WorkerParameters__UserConsumer: "consumer@bot.com"
     restart: on-failure
     

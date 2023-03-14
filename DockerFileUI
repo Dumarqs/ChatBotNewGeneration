@@ -3,21 +3,20 @@
 #FROM mcr.microsoft.com/dotnet/runtime:7.0 AS base
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
+EXPOSE 443
+EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["Chat.Bot.UI/Chat.Bot.UI.csproj", "Chat.Bot.UI/"]
-RUN dotnet restore "Chat.Bot.UI/Chat.Bot.UI.csproj"
+COPY ["/src/Chat.Bot.UI/Chat.Bot.UI.csproj", "Chat.Bot.UI/"]
+RUN dotnet restore "/src/Chat.Bot.UI/Chat.Bot.UI.csproj"
+
 COPY . .
-WORKDIR "/src/Chat.Bot.UI"
+WORKDIR "/src/src/Chat.Bot.UI"
 RUN dotnet build "Chat.Bot.UI.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Chat.Bot.UI.csproj" -c Release -o /app/publish
-
-# https://github.com/dotnet/SqlClient/issues/633#issuecomment-1207473798
-#RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf
-#RUN sed -i 's/CipherString = DEFAULT@SECLEVEL=2/CipherString = DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
+RUN dotnet publish "/src/src/Chat.Bot.UI/Chat.Bot.UI.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app

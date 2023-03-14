@@ -6,25 +6,21 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["Chat.Bot.API/Chat.Bot.API.csproj", "Chat.Bot.API/"]
-COPY ["Application/Application.csproj", "Application/"]
-COPY ["Domain/Domain.csproj", "Domain/"]
-COPY ["Domain.Core.csproj", "Domain.Core/"]
-COPY ["Infra.CrossCutting.IoC/Infra.CrossCutting.IoC.csproj", "Infra.CrossCutting.IoC/"]
-COPY ["Infra.CrossCutting.Http/Infra.CrossCutting.Http.csproj", "Infra.CrossCutting.Http/"]
-COPY ["Infra.CrossCutting.Log/Infra.CrossCutting.Log.csproj", "Infra.CrossCutting.Log/"]
-COPY ["Infra.Data.SqlServer/Infra.Data.SqlServer.csproj", "Infra.Data.SqlServer/"]
-RUN dotnet restore "Chat.Bot.API/Chat.Bot.API.csproj"
+COPY ["/src/Chat.Bot.API/Chat.Bot.API.csproj", "Chat.Bot.API/"]
+COPY ["/src/Application/Application.csproj", "Application/"]
+COPY ["/src/Domain/Domain.csproj", "Domain/"]
+COPY ["/src/Domain.Core/Domain.Core.csproj", "Domain.Core/"]
+COPY ["/src/Infra.CrossCutting.IoC/Infra.CrossCutting.IoC.csproj", "Infra.CrossCutting.IoC/"]
+COPY ["/src/Infra.CrossCutting.Http/Infra.CrossCutting.Http.csproj", "Infra.CrossCutting.Http/"]
+COPY ["/src/Infra.CrossCutting.Log/Infra.CrossCutting.Log.csproj", "Infra.CrossCutting.Log/"]
+COPY ["/src/Infra.Data.SqlServer/Infra.Data.SqlServer.csproj", "Infra.Data.SqlServer/"]
+RUN dotnet restore "/src/Chat.Bot.API/Chat.Bot.API.csproj"
 COPY . .
-WORKDIR "/src/Chat.Bot.API"
+WORKDIR "/src/src/Chat.Bot.API"
 RUN dotnet build "Chat.Bot.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Chat.Bot.API.csproj" -c Release -o /app/publish
-
-# https://github.com/dotnet/SqlClient/issues/633#issuecomment-1207473798
-#RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf
-#RUN sed -i 's/CipherString = DEFAULT@SECLEVEL=2/CipherString = DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
+RUN dotnet publish "/src/src/Chat.Bot.API/Chat.Bot.API.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
