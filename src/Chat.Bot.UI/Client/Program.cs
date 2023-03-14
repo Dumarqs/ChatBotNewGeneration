@@ -6,6 +6,7 @@ using Chat.Bot.UI.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using System.Text.Json;
 
 namespace Chat.Bot.UI
 {
@@ -17,14 +18,37 @@ namespace Chat.Bot.UI
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
+            
+
+            string apiUrl = string.Empty;
+            if(builder.HostEnvironment.IsDevelopment())
+                apiUrl = builder.Configuration["ApiUrl"];
+
+            else
+            {
+                var http = new HttpClient()
+                {
+                    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+                };
+
+                builder.Services.AddScoped(sp => http);
+
+                using var response = await http.GetAsync("docker.json");
+                var api = JsonSerializer.Deserialize<ConfigDocker>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                apiUrl = api.ApiUrl;
+            }          
+
+            Console.WriteLine(apiUrl);
+
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             builder.Services.AddHttpClient<ApiService>(client =>
             {
-                client.BaseAddress = new Uri("https://localhost:7203");
+                client.BaseAddress = new Uri(apiUrl);
             });
 
-            Config options = new Config("https://localhost:7203");
+            Config options = new Config(apiUrl);
             builder.Services.AddSingleton(options);
 
             builder.Services.AddBlazoredLocalStorage();
