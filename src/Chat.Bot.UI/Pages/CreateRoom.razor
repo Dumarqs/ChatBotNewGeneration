@@ -15,37 +15,18 @@
     Add Room
 </h3>
 
-<form>
-    <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tbody>
-            <tr>
-                <td>
-                    <label for="RName" class="control-label">
-                        Room Name
-                    </label>
-                </td>
-                <td>
-                    <input for="RName" class="form-control"
-                           @bind="@room.RoomName" />
-                </td>
-            </tr>           
-            <tr>
-                <td></td>
-                <td>
-                    <br />
-                    <button type="button" class="btn btn-primary"
-                            @onclick="() => Create()">
-                        &#8195;Save&#8195;
-                    </button>&#8194;
-                    <button type="button" class="btn btn-warning"
-                            @onclick="() => Cancel()">
-                        &#8194;&#8201;Cancel&#8201;&#8194;
-                    </button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</form>
+<EditForm Model="room" OnValidSubmit="Create">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="rname">Room Name</label>
+        <InputText Id="email" Class="form-control" @bind-Value="room.RoomName" />
+        <ValidationMessage For="@(() => room.RoomName)" />
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</EditForm>
+
 
 @code {
     Room room = new Room();
