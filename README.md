@@ -11,4 +11,4 @@ The project is divided in 4 parts
 
 To run the application in docker please type docker-compose up --build inside the project folder.
     
-
+- The UI url http://localhost:8080
