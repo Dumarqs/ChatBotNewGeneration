@@ -101,6 +101,8 @@ namespace Chat.Bot.API
 
             var app = builder.Build();
 
+            app.Services.SetupDB();
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

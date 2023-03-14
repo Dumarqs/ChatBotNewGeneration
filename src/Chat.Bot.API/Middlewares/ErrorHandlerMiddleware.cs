@@ -1,4 +1,5 @@
 ﻿using Chat.Bot.API.Models;
+using Infra.CrossCutting.Log.Interfaces;
 using System.Net;
 using System.Text.Json;
 
@@ -7,8 +8,8 @@ namespace Chat.Bot.API.Middlewares
     public class ErrorHandlerMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<ErrorHandlerMiddleware> _logger;
-        public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
+        private readonly ILoggerAdapter<ErrorHandlerMiddleware> _logger;
+        public ErrorHandlerMiddleware(RequestDelegate next, ILoggerAdapter<ErrorHandlerMiddleware> logger)
         {
             _next = next;
             _logger = logger;
@@ -39,25 +40,24 @@ namespace Chat.Bot.API.Middlewares
                     {
                         response.StatusCode = (int)HttpStatusCode.Forbidden;
                         errorResponse.Message = ex.Message;
-                        _logger.LogError(ex.InnerException.ToString());
+                        _logger.LogError(ex, ex.Message);
                         break;
                     }
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
                     errorResponse.Message = ex.Message;
-                    _logger.LogError(ex.InnerException.ToString());
+                    _logger.LogError(ex, ex.Message);
                     break;
                 case KeyNotFoundException ex:
                     response.StatusCode = (int)HttpStatusCode.NotFound;
                     errorResponse.Message = ex.Message;
-                    _logger.LogError(ex.InnerException.ToString());
+                    _logger.LogError(ex, ex.Message);
                     break;
                 default:
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     errorResponse.Message = "Internal Server errors.";
-                    _logger.LogError(exception.InnerException.ToString());
+                    _logger.LogError(exception, exception.Message);
                     break;
             }
-            _logger.LogError(exception.Message);
             var result = JsonSerializer.Serialize(errorResponse);
             await context.Response.WriteAsync(result);
         }

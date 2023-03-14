@@ -21,5 +21,16 @@ namespace Infra.CrossCutting.IoC
                 options.UseSqlServer(connectionStrings.CnnDB)
             );
         }
+
+        public static void SetupDB(this IServiceProvider serviceProvider)
+        {
+            using var scope = serviceProvider.CreateScope();
+            using var context = scope.ServiceProvider.GetService<ChatBotContext>();
+            if (context is not null)
+            {
+                context.Database.Migrate();
+            }
+
+        }
     }
 }
