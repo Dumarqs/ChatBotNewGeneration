@@ -22,20 +22,26 @@ services:
     volumes:
       - /docker_conf/rabbitmq/data/:/var/lib/rabbitmq/
       
+  nginx:
+    image: reverse-proxy
+    container_name: nginx
+    build:
+        dockerfile: ./DockerFileNGINX
+    depends_on:
+      - api
+      - ui
+    restart: on-failure
+
   api:
     build:
       dockerfile: ./DockerFileAPI
     environment:
       ConnectionStrings__CnnDB: "Data Source=sqlserver,1433;Initial Catalog=Chatbot;User Id=SA;Password=TestJobsity2023;encrypt=false"
       JwtParameters__Audience: ""
-      JwtParameters__Issuer: "https://localhost:7203"
+      JwtParameters__Issuer: "http://localhost:8080"
       JwtParameters__Secret: "ThebeautyofLifedependhowyouseetheworld"
       JwtParameters__ExpiresHours: "24"
-      ASPNETCORE_URLS: "https://+;http://+"
-      ASPNETCORE_HTTPS_PORT: "7203"
-      #ASPNETCORE_ENVIRONMENT: "Development"
-      #ASPNETCORE_Kestrel__Certificates__Development__Password: "123456"
-      #ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/servercert.pfx"
+      ASPNETCORE_ENVIRONMENT: "Development"
     ports:
       - "7203:443"
       - "8080:80"
@@ -54,7 +60,7 @@ services:
       WorkerParameters__QueueName: "consume.bot"
       WorkerParameters__RecordsPerBatch: "10"
       WorkerParameters__UriCsv: "https://stooq.com/q/l/"
-      WorkerParameters__ApiUrl: "https://localhost:7203"
+      WorkerParameters__ApiUrl: "http://localhost:8080"
       WorkerParameters__UserBot : "bot@bot.com"
     restart: on-failure
     
@@ -64,7 +70,7 @@ services:
     depends_on:
       - api
     environment:
-      applicationUrl: "https://localhost:7146"
+      applicationUrl: "http://localhost:8080"
     ports:
       - "7147:80"
       - "7146:443"
@@ -81,7 +87,7 @@ services:
       RabbitConnection__ConnectionName: "Test Jobsity 2023"
       RabbitConnection__Uri: "amqp://guest:guest@rabbitmq:5672"
       WorkerParameters__QueueName: "consume.bot"
-      WorkerParameters__ApiUrl: "https://localhost:7203"
+      WorkerParameters__ApiUrl: "http://localhost:8080"
       WorkerParameters__UserConsumer: "consumer@bot.com"
     restart: on-failure
     
